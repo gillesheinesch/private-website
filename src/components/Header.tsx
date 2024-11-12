@@ -19,6 +19,10 @@ const pages = [
         href: "/",
     },
     {
+        name: "Projects",
+        href: "/projects",
+    },
+    {
         name: "About",
         href: "/about",
     },
@@ -118,7 +122,14 @@ function ResponsiveAppBar() {
                     <Box sx={{ flexGrow: 1 }} />
                     <Box sx={{ display: { xs: "none", md: "flex" } }}>
                         {pages.map((page) => (
-                            <Link key={page.name} href={page.href} passHref>
+                            <Link
+                                key={page.name}
+                                href={page.href}
+                                passHref
+                                style={{
+                                    textDecoration: "none",
+                                }}
+                            >
                                 <Button onClick={handleCloseNavMenu} sx={{ my: 2, color: "white", display: "block" }}>
                                     {page.name}
                                 </Button>
