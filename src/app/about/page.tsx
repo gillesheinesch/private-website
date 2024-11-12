@@ -6,8 +6,7 @@ export default function About() {
             <Box
                 sx={{
                     py: 1,
-                }}
-            >
+                }}>
                 <Typography variant="h3" component="h1" gutterBottom>
                     About me
                 </Typography>
