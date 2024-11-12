@@ -1,5 +1,6 @@
 import React from "react";
-import { Container, Typography, Box, Alert } from "@mui/material";
+import { Container, Typography, Box, Alert, Button } from "@mui/material";
+import Link from "next/link";
 
 export default function Home() {
     return (
@@ -41,6 +42,24 @@ export default function Home() {
                         I am an aviation enthusiast and a passionate web developer. Explore my projects, learn more
                         about me, and feel free to get in touch.
                     </Typography>
+                    <Box sx={{ mt: 4 }}>
+                        <Link href="/projects" passHref>
+                            <Button variant="outlined" color="primary">
+                                Projects
+                            </Button>
+                        </Link>
+                        <Link href="/about" passHref>
+                            <Button
+                                variant="outlined"
+                                color="primary"
+                                sx={{
+                                    ml: 2,
+                                }}
+                            >
+                                About me
+                            </Button>
+                        </Link>
+                    </Box>
                 </Box>
             </Container>
         </>

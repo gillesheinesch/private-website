@@ -12,7 +12,10 @@ export default function About() {
                 </Typography>
 
                 <Grid2 container>
-                    <Grid2 size={6}>
+                    <Grid2 size={{
+                        xs: 12,
+                        sm: 6,
+                    }}>
                         <Avatar
                             alt="Gilles Heinesch"
                             src="/gillesheinesch.jpg"
@@ -27,7 +30,7 @@ export default function About() {
                     <Grid2 size={6}>
                         <Typography variant="body1" component="p">
                             <strong>Born:</strong> Luxembourg <br />
-                            <strong>Work:</strong> Luxair S.A, Luxmebourg <br />
+                            <strong>Work:</strong> Luxair S.A, Luxembourg <br />
                             <strong>Hobbies:</strong> Running, Programming, ...
                         </Typography>
                     </Grid2>
