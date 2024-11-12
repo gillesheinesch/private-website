@@ -1,5 +1,4 @@
 import { Box, Button, Card, CardActions, CardContent, Chip, Container, Grid2, Typography } from "@mui/material";
-import Link from "next/link";
 
 const projects = [
     {
