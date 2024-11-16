@@ -25,14 +25,17 @@ export default function BlogPost({ blog }) {
                 ))}
             </Box>
             <Box sx={{ mt: 4 }}>
+                <img src={blog.thumbnail} alt={blog.title} style={{ width: '100%', height: 'auto' }} />
+            </Box>
+            <Box sx={{ mt: 4 }}>
                 <ReactMarkdown
                     components={{
-                        h1: ({ node, ...props }) => <Typography variant="h4" gutterBottom {...props} />,
-                        h2: ({ node, ...props }) => <Typography variant="h5" gutterBottom {...props} />,
-                        h3: ({ node, ...props }) => <Typography variant="h6" gutterBottom {...props} />,
-                        p: ({ node, ...props }) => <Typography variant="body1" paragraph {...props} />,
-                        a: ({ node, ...props }) => <Typography variant="body1" color="primary" {...props} />,
-                        li: ({ node, ...props }) => <Typography variant="body1" component="li" {...props} />,
+                        h1: (props) => <Typography variant="h4" gutterBottom {...props} />,
+                        h2: (props) => <Typography variant="h5" gutterBottom {...props} />,
+                        h3: (props) => <Typography variant="h6" gutterBottom {...props} />,
+                        p: (props) => <Typography variant="body1" paragraph {...props} />,
+                        a: (props) => <Typography variant="body1" color="primary" {...props} />,
+                        li: (props) => <Typography variant="body1" component="li" {...props} />,
                     }}
                 >
                     {blog.content}
