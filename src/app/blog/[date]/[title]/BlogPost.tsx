@@ -44,14 +44,16 @@ export default function BlogPost({ blog }: BlogPostProps) {
                 <img src={blog.thumbnail} alt={blog.title} style={{ width: '100%', height: 'auto' }} />
             </Box>
             <Box sx={{ mt: 4 }}>
+                {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
+                {/* @ts-ignore ts(2769) */}
                 <ReactMarkdown
                     components={{
-                        h1: (props) => <Typography variant="h4" gutterBottom {...props} />,
-                        h2: (props) => <Typography variant="h5" gutterBottom {...props} />,
-                        h3: (props) => <Typography variant="h6" gutterBottom {...props} />,
-                        p: (props) => <Typography variant="body1" paragraph {...props} />,
-                        a: (props) => <Typography variant="body1" color="primary" {...props} />,
-                        li: (props) => <Typography variant="body1" component="li" {...props} />,
+                        h1: ({ node, ...props }) => <Typography variant="h4" component="h1" gutterBottom {...props} />,
+                        h2: ({ node, ...props }) => <Typography variant="h5" component="h2" gutterBottom {...props} />,
+                        h3: ({ node, ...props }) => <Typography variant="h6" component="h3" gutterBottom {...props} />,
+                        p: ({ node, ...props }) => <Typography variant="body1" component="p" paragraph {...props} />,
+                        a: ({ node, ...props }) => <Typography variant="body1" color="primary" component="a" {...props} />,
+                        li: ({ node, ...props }) => <Typography variant="body1" component="li" {...props} />,
                     }}
                 >
                     {blog.content}
