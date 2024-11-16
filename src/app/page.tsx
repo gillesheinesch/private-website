@@ -48,6 +48,13 @@ export default function Home() {
                                 Projects
                             </Button>
                         </Link>
+                        <Link href="/blog" passHref>
+                            <Button variant="outlined" color="primary" sx={{
+                                    ml: 2,
+                                }}>
+                                Blog
+                            </Button>
+                        </Link>
                         <Link href="/about" passHref>
                             <Button
                                 variant="outlined"

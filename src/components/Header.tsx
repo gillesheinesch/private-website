@@ -22,6 +22,10 @@ const pages = [
         href: "/projects",
     },
     {
+        name: "Blog",
+        href: "/blog",
+    },
+    {
         name: "About",
         href: "/about",
     },
