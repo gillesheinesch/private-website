@@ -3,7 +3,23 @@ import { Box, Chip, Container, Typography } from "@mui/material";
 import moment from "moment";
 import ReactMarkdown from 'react-markdown';
 
-export default function BlogPost({ blog }) {
+// Define the type for the blog object
+interface Blog {
+    title: string;
+    description: string;
+    category: string;
+    thumbnail: string;
+    date: string;
+    tags: string[];
+    content: string;
+}
+
+// Define the props type for the BlogPost component
+interface BlogPostProps {
+    blog: Blog;
+}
+
+export default function BlogPost({ blog }: BlogPostProps) {
     if (!blog) {
         return <div>Loading...</div>;
     }
