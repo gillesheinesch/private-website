@@ -3,6 +3,13 @@ import { Box, Chip, Container, Typography } from "@mui/material";
 import moment from "moment";
 import ReactMarkdown from 'react-markdown';
 
+const MarkdownH1 = (props: any) => <Typography variant="h4" component="h1" gutterBottom {...props} />;
+const MarkdownH2 = (props: any) => <Typography variant="h5" component="h2" gutterBottom {...props} />;
+const MarkdownH3 = (props: any) => <Typography variant="h6" component="h3" gutterBottom {...props} />;
+const MarkdownP = (props: any) => <Typography variant="body1" component="p" paragraph {...props} />;
+const MarkdownA = (props: any) => <Typography variant="body1" color="primary" component="a" {...props} />;
+const MarkdownLI = (props: any) => <Typography variant="body1" component="li" {...props} />;
+
 // Define the type for the blog object
 interface Blog {
     title: string;
@@ -44,21 +51,18 @@ export default function BlogPost({ blog }: BlogPostProps) {
                 <img src={blog.thumbnail} alt={blog.title} style={{ width: '100%', height: 'auto' }} />
             </Box>
             <Box sx={{ mt: 4 }}>
-                {/* eslint-disable @typescript-eslint/ban-ts-comment */}
-                {/* @ts-ignore ts(2769) */}
                 <ReactMarkdown
                     components={{
-                        h1: ({ ...props }) => <Typography variant="h4" component="h1" gutterBottom {...props} />,
-                        h2: ({ ...props }) => <Typography variant="h5" component="h2" gutterBottom {...props} />,
-                        h3: ({ ...props }) => <Typography variant="h6" component="h3" gutterBottom {...props} />,
-                        p: ({ ...props }) => <Typography variant="body1" component="p" paragraph {...props} />,
-                        a: ({ ...props }) => <Typography variant="body1" color="primary" component="a" {...props} />,
-                        li: ({ ...props }) => <Typography variant="body1" component="li" {...props} />,
+                        h1: MarkdownH1,
+                        h2: MarkdownH2,
+                        h3: MarkdownH3,
+                        p: MarkdownP,
+                        a: MarkdownA,
+                        li: MarkdownLI,
                     }}
                 >
                     {blog.content}
                 </ReactMarkdown>
-                {/* eslint-enable @typescript-eslint/ban-ts-comment */}
             </Box>
         </Container>
     );
