@@ -44,7 +44,7 @@ export default function BlogPost({ blog }: BlogPostProps) {
                 <img src={blog.thumbnail} alt={blog.title} style={{ width: '100%', height: 'auto' }} />
             </Box>
             <Box sx={{ mt: 4 }}>
-                {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
+                {/* eslint-disable @typescript-eslint/ban-ts-comment */}
                 {/* @ts-ignore ts(2769) */}
                 <ReactMarkdown
                     components={{
@@ -58,6 +58,7 @@ export default function BlogPost({ blog }: BlogPostProps) {
                 >
                     {blog.content}
                 </ReactMarkdown>
+                {/* eslint-enable @typescript-eslint/ban-ts-comment */}
             </Box>
         </Container>
     );
