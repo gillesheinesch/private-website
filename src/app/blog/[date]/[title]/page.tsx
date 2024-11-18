@@ -25,6 +25,10 @@ type Params = {
     title: string;
 };
 
+interface PageProps {
+    params: Params;
+}
+
 export async function generateMetadata({ params }: { params: Params }) {
     const { date, title } = params;
     const blogDirectory = path.join(process.cwd(), 'blog');
@@ -51,7 +55,7 @@ export async function generateMetadata({ params }: { params: Params }) {
     };
 }
 
-export default async function Page({ params }: { params: Params }) {
+export default async function Page({ params }: PageProps) {
     const { date, title } = params;
     const blogDirectory = path.join(process.cwd(), 'blog');
     const filenames = fs.readdirSync(blogDirectory);
