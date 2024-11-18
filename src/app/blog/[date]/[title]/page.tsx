@@ -25,19 +25,6 @@ type Params = {
     title: string;
 };
 
-interface PageProps {
-    params: Params;
-    blog: {
-        title: string;
-        description: string;
-        category: string;
-        thumbnail: string;
-        date: string;
-        tags: string[];
-        content: string;
-    };
-}
-
 export async function generateMetadata({ params }: { params: Params }) {
     const { date, title } = params;
     const blogDirectory = path.join(process.cwd(), 'blog');
