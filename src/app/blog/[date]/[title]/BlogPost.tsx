@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import { Box, Chip, Container, Typography } from "@mui/material";
 import moment from "moment";
 import ReactMarkdown from 'react-markdown';
@@ -46,9 +46,6 @@ export default function BlogPost({ blog }: BlogPostProps) {
                 {blog.tags.map((tag) => (
                     <Chip key={tag} label={tag} sx={{ mr: 1 }} />
                 ))}
-            </Box>
-            <Box sx={{ mt: 4 }}>
-                <img src={blog.thumbnail} alt={blog.title} style={{ width: '100%', height: 'auto' }} />
             </Box>
             <Box sx={{ mt: 4 }}>
                 <ReactMarkdown

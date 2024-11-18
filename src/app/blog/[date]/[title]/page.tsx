@@ -20,7 +20,12 @@ export async function generateStaticParams() {
     });
 }
 
-export async function generateMetadata({ params }) {
+type Params = {
+    date: string;
+    title: string;
+};
+
+export async function generateMetadata({ params }: { params: Params }) {
     const { date, title } = params;
     const blogDirectory = path.join(process.cwd(), 'blog');
     const filenames = fs.readdirSync(blogDirectory);
@@ -46,7 +51,7 @@ export async function generateMetadata({ params }) {
     };
 }
 
-export default async function Page({ params }) {
+export default async function Page({ params }: { params: Params }) {
     const { date, title } = params;
     const blogDirectory = path.join(process.cwd(), 'blog');
     const filenames = fs.readdirSync(blogDirectory);
