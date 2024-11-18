@@ -4,10 +4,12 @@ import path from 'path';
 import moment from 'moment';
 import BlogPost from './BlogPost';
 
+// Generate static params for blog routes
 export async function generateStaticParams() {
     const blogDirectory = path.join(process.cwd(), 'blog');
     const filenames = fs.readdirSync(blogDirectory);
 
+    // Map filenames to static params
     return filenames.map((filename) => {
         const filePath = path.join(blogDirectory, filename);
         const fileContent = fs.readFileSync(filePath, 'utf8');
@@ -35,26 +37,33 @@ interface Blog {
     content: string;
 }
 
+// Generate metadata for a specific blog
 export async function generateMetadata({ params }: { params: Params }) {
     const { date, title } = params;
     const blogDirectory = path.join(process.cwd(), 'blog');
     const filenames = fs.readdirSync(blogDirectory);
 
-    const blog: Blog | undefined = filenames.map((filename) => {
-        const filePath = path.join(blogDirectory, filename);
-        const fileContent = fs.readFileSync(filePath, 'utf8');
-        const { data } = matter(fileContent);
+    const blog: Blog | undefined = filenames
+        .map((filename) => {
+            const filePath = path.join(blogDirectory, filename);
+            const fileContent = fs.readFileSync(filePath, 'utf8');
+            const { data } = matter(fileContent);
 
-        return {
-            title: data.title,
-            description: data.description,
-            category: data.category,
-            thumbnail: data.thumbnail,
-            date: data.date,
-            tags: data.tags,
-            content: data.content,
-        };
-    }).find(blog => blog.title === decodeURIComponent(title) && moment(blog.date).format('YYYY-MM-DD') === date);
+            return {
+                title: data.title,
+                description: data.description,
+                category: data.category,
+                thumbnail: data.thumbnail,
+                date: data.date,
+                tags: data.tags,
+                content: data.content,
+            };
+        })
+        .find(
+            (blog) =>
+                blog.title === decodeURIComponent(title) &&
+                moment(blog.date).format('YYYY-MM-DD') === date
+        );
 
     if (!blog) {
         return {
@@ -68,26 +77,37 @@ export async function generateMetadata({ params }: { params: Params }) {
     };
 }
 
-export default async function Page({ params }: { params: Params }) {
+interface PageProps {
+    params: Params;
+}
+
+// Page Component for rendering a specific blog
+export default async function Page({ params }: PageProps) {
     const { date, title } = params;
     const blogDirectory = path.join(process.cwd(), 'blog');
     const filenames = fs.readdirSync(blogDirectory);
 
-    const blog: Blog | undefined = filenames.map((filename) => {
-        const filePath = path.join(blogDirectory, filename);
-        const fileContent = fs.readFileSync(filePath, 'utf8');
-        const { data, content } = matter(fileContent);
+    const blog: Blog | undefined = filenames
+        .map((filename) => {
+            const filePath = path.join(blogDirectory, filename);
+            const fileContent = fs.readFileSync(filePath, 'utf8');
+            const { data, content } = matter(fileContent);
 
-        return {
-            title: data.title,
-            description: data.description,
-            category: data.category,
-            thumbnail: data.thumbnail,
-            date: data.date,
-            tags: data.tags,
-            content: content,
-        };
-    }).find(blog => blog.title === decodeURIComponent(title) && moment(blog.date).format('YYYY-MM-DD') === date);
+            return {
+                title: data.title,
+                description: data.description,
+                category: data.category,
+                thumbnail: data.thumbnail,
+                date: data.date,
+                tags: data.tags,
+                content: content,
+            };
+        })
+        .find(
+            (blog) =>
+                blog.title === decodeURIComponent(title) &&
+                moment(blog.date).format('YYYY-MM-DD') === date
+        );
 
     if (!blog) {
         return <div>Blog not found</div>;
