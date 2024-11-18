@@ -72,7 +72,7 @@ interface PageProps {
     params: Params;
 }
 
-export default async function Page({ params }: { params: Params }) {
+export default async function Page({ params }: PageProps) {
     const { date, title } = params;
     const blogDirectory = path.join(process.cwd(), 'blog');
     const filenames = fs.readdirSync(blogDirectory);
