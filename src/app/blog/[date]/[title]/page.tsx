@@ -68,6 +68,10 @@ export async function generateMetadata({ params }: { params: Params }) {
     };
 }
 
+interface PageProps {
+    params: Params;
+}
+
 export default async function Page({ params }: { params: Params }) {
     const { date, title } = params;
     const blogDirectory = path.join(process.cwd(), 'blog');
