@@ -3,7 +3,6 @@ import fs from 'fs';
 import path from 'path';
 import moment from "moment";
 import BlogPost from './BlogPost';
-import { GetStaticPropsContext } from "next";
 
 export async function generateStaticParams() {
     const blogDirectory = path.join(process.cwd(), 'blog');
@@ -71,13 +70,8 @@ export async function generateMetadata({ params }: { params: Params }) {
     };
 }
 
-export default function Page({ blog }: PageProps) {
-    return <BlogPost blog={blog} />;
-}
-
-export async function getStaticProps(context: GetStaticPropsContext) {
-    const { params } = context;
-    const { date, title } = params as Params;
+export default async function Page({ params }: { params: Params }) {
+    const { date, title } = params;
     const blogDirectory = path.join(process.cwd(), 'blog');
     const filenames = fs.readdirSync(blogDirectory);
 
@@ -98,15 +92,8 @@ export async function getStaticProps(context: GetStaticPropsContext) {
     }).find(blog => blog.title === decodeURIComponent(title) && moment(blog.date).format('YYYY-MM-DD') === date);
 
     if (!blog) {
-        return {
-            notFound: true,
-        };
+        return <div>Blog not found</div>;
     }
 
-    return {
-        props: {
-            params,
-            blog,
-        },
-    };
+    return <BlogPost blog={blog} />;
 }
