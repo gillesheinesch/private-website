@@ -25,12 +25,22 @@ type Params = {
     title: string;
 };
 
+interface Blog {
+    title: string;
+    description: string;
+    category: string;
+    thumbnail: string;
+    date: string;
+    tags: string[];
+    content: string;
+}
+
 export async function generateMetadata({ params }: { params: Params }) {
     const { date, title } = params;
     const blogDirectory = path.join(process.cwd(), 'blog');
     const filenames = fs.readdirSync(blogDirectory);
 
-    const blog = filenames.map((filename) => {
+    const blog: Blog | undefined = filenames.map((filename) => {
         const filePath = path.join(blogDirectory, filename);
         const fileContent = fs.readFileSync(filePath, 'utf8');
         const { data } = matter(fileContent);
@@ -42,6 +52,7 @@ export async function generateMetadata({ params }: { params: Params }) {
             thumbnail: data.thumbnail,
             date: data.date,
             tags: data.tags,
+            content: data.content,
         };
     }).find(blog => blog.title === decodeURIComponent(title) && moment(blog.date).format('YYYY-MM-DD') === date);
 
@@ -62,7 +73,7 @@ export default async function Page({ params }: { params: Params }) {
     const blogDirectory = path.join(process.cwd(), 'blog');
     const filenames = fs.readdirSync(blogDirectory);
 
-    const blog = filenames.map((filename) => {
+    const blog: Blog | undefined = filenames.map((filename) => {
         const filePath = path.join(blogDirectory, filename);
         const fileContent = fs.readFileSync(filePath, 'utf8');
         const { data, content } = matter(fileContent);
