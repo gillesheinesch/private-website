@@ -3,6 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import moment from "moment";
 import BlogPost from './BlogPost';
+import { GetStaticPropsContext } from "next";
 
 export async function generateStaticParams() {
     const blogDirectory = path.join(process.cwd(), 'blog');
@@ -25,7 +26,7 @@ type Params = {
     title: string;
 };
 
-interface PageProps {
+interface PageProps extends GetStaticPropsContext {
     params: Params;
 }
 
