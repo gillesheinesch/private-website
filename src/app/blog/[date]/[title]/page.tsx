@@ -26,8 +26,17 @@ type Params = {
     title: string;
 };
 
-interface PageProps extends GetStaticPropsContext {
+interface PageProps {
     params: Params;
+    blog: {
+        title: string;
+        description: string;
+        category: string;
+        thumbnail: string;
+        date: string;
+        tags: string[];
+        content: string;
+    };
 }
 
 export async function generateMetadata({ params }: { params: Params }) {
@@ -48,7 +57,13 @@ export async function generateMetadata({ params }: { params: Params }) {
             date: data.date,
             tags: data.tags,
         };
-    }).find(blog => moment(blog.date).format('YYYY-MM-DD') === date && encodeURIComponent(blog.title) === title);
+    }).find(blog => blog.title === decodeURIComponent(title) && moment(blog.date).format('YYYY-MM-DD') === date);
+
+    if (!blog) {
+        return {
+            title: 'Blog not found',
+        };
+    }
 
     return {
         title: blog.title,
@@ -56,8 +71,13 @@ export async function generateMetadata({ params }: { params: Params }) {
     };
 }
 
-export default async function Page({ params }: PageProps) {
-    const { date, title } = params;
+export default function Page({ blog }: PageProps) {
+    return <BlogPost blog={blog} />;
+}
+
+export async function getStaticProps(context: GetStaticPropsContext) {
+    const { params } = context;
+    const { date, title } = params as Params;
     const blogDirectory = path.join(process.cwd(), 'blog');
     const filenames = fs.readdirSync(blogDirectory);
 
@@ -75,7 +95,18 @@ export default async function Page({ params }: PageProps) {
             tags: data.tags,
             content: content,
         };
-    }).find(blog => moment(blog.date).format('YYYY-MM-DD') === date && encodeURIComponent(blog.title) === title);
+    }).find(blog => blog.title === decodeURIComponent(title) && moment(blog.date).format('YYYY-MM-DD') === date);
 
-    return <BlogPost blog={blog} />;
+    if (!blog) {
+        return {
+            notFound: true,
+        };
+    }
+
+    return {
+        props: {
+            params,
+            blog,
+        },
+    };
 }
