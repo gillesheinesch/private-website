@@ -1,7 +1,7 @@
 import matter from 'gray-matter';
 import fs from 'fs';
 import path from 'path';
-import moment from "moment";
+import moment from 'moment';
 import BlogPost from './BlogPost';
 
 export async function generateStaticParams() {
@@ -68,11 +68,7 @@ export async function generateMetadata({ params }: { params: Params }) {
     };
 }
 
-interface PageProps {
-    params: Params;
-}
-
-export default async function Page({ params }: PageProps) {
+export default async function Page({ params }: { params: Params }) {
     const { date, title } = params;
     const blogDirectory = path.join(process.cwd(), 'blog');
     const filenames = fs.readdirSync(blogDirectory);
