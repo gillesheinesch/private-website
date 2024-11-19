@@ -52,7 +52,7 @@ export default function Blog() {
                                 <Typography variant="body2" color="text.secondary" sx={{ textTransform: 'uppercase' }}>
                                     {blog.category}
                                 </Typography>
-                                <Link href={`/blog/${moment(blog.date).format('YYYY-MM-DD')}/${encodeURIComponent(blog.title)}`} passHref style={{ textDecoration: 'none', color: 'inherit'}}>
+                                <Link href={`/blog/${encodeURIComponent(blog.title)}`} passHref style={{ textDecoration: 'none', color: 'inherit'}}>
                                 <Typography variant="h5" component="div">
                                         {blog.title}
                                 </Typography>
@@ -70,7 +70,7 @@ export default function Blog() {
                                 </Box>
                             </CardContent>
                             <CardActions>
-                            <Link href={`/blog/${moment(blog.date).format('YYYY-MM-DD')}/${encodeURIComponent(blog.title)}`} passHref>
+                            <Link href={`/blog/${encodeURIComponent(blog.title)}`} passHref>
                                 <Button size="small">
                                     Read More
                                 </Button>
