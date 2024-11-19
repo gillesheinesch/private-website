@@ -133,7 +133,7 @@ export default async function Page() {
                 {moment(blog.date).format('DD.MM.YYYY')}
             </Typography>
             <Box sx={{ mt: 2 }}>
-                {blog.tags.map((tag) => (
+                {blog.tags.map((tag: string) => (
                     <Chip key={tag} label={tag} sx={{ mr: 1 }} />
                 ))}
             </Box>
