@@ -28,6 +28,15 @@ const projects = [
         website: "https://www.dahindo.com",
         github: "",
     },
+    {
+        title: "RosterX Web Application",
+        description:
+            "RosterX parses flight crew schedules into .ics files, allowing users to import their rosters into their preferred calendar application.",
+        labels: ["React", "Tailwind CSS", "Node.js"],
+        position: "Developer",
+        website: "",
+        github: "",
+    },
 ];
 
 export default function Projects() {
