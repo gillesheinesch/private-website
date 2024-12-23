@@ -18,7 +18,7 @@ export default function About() {
                     }}>
                         <Avatar
                             alt="Gilles Heinesch"
-                            src="/gillesheinesch.jpg"
+                            src="/images/gillesheinesch.png"
                             sx={{
                                 width: 300,
                                 height: 300,

@@ -5,18 +5,6 @@ import Link from "next/link";
 export default function Home() {
     return (
         <>
-            <Container maxWidth="lg">
-                <Alert
-                    variant="filled"
-                    severity="warning"
-                    sx={{
-                        m: 3,
-                    }}
-                >
-                    This website is a work in progress.
-                </Alert>
-            </Container>
-
             <Container
                 maxWidth="lg"
                 sx={{
