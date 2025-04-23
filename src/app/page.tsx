@@ -1,62 +1,30 @@
-import React from "react";
-import { Container, Typography, Box, Alert, Button } from "@mui/material";
+import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import React from "react";
+
+// Import shadcn Button component (assuming it will be added later or exists)
+// We'll use basic anchor tags for now
+// import { Button } from "@/components/ui/button";
 
 export default function Home() {
     return (
-        <>
-            <Container
-                maxWidth="lg"
-                sx={{
-                    mt: 8,
-                    position: "relative",
-                    overflow: "hidden",
-                }}
-            >
-                <Box
-                    sx={{
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                        textAlign: "center",
-                        py: 8,
-                        zIndex: 1,
-                    }}
-                >
-                    <Typography variant="h2" component="h1" gutterBottom>
-                        Gilles Heinesch
-                    </Typography>
-                    <Typography variant="body1">
-                        I am an aviation enthusiast and a passionate web developer. Explore my projects, learn more
-                        about me, and feel free to get in touch.
-                    </Typography>
-                    <Box sx={{ mt: 4 }}>
-                        <Link href="/projects" passHref>
-                            <Button variant="outlined" color="primary">
-                                Projects
-                            </Button>
-                        </Link>
-                        <Link href="/blog" passHref>
-                            <Button variant="outlined" color="primary" sx={{
-                                    ml: 2,
-                                }}>
-                                Blog
-                            </Button>
-                        </Link>
-                        <Link href="/about" passHref>
-                            <Button
-                                variant="outlined"
-                                color="primary"
-                                sx={{
-                                    ml: 2,
-                                }}
-                            >
-                                About me
-                            </Button>
-                        </Link>
-                    </Box>
-                </Box>
-            </Container>
-        </>
+        <div className="flex flex-col items-center text-center py-16">
+            <h1 className="text-4xl font-bold mb-4">Gilles Heinesch</h1>
+            <p className="mb-8 max-w-prose">
+                I am an aviation enthusiast and a passionate web developer. Explore my projects, learn more about me,
+                and feel free to get in touch.
+            </p>
+            <div className="space-x-4">
+                <Link href="/projects" passHref>
+                    <Button variant="outline">Projects</Button>
+                </Link>
+                <Link href="/blog" passHref>
+                    <Button variant="outline">Blog</Button>
+                </Link>
+                <Link href="/about" passHref>
+                    <Button variant="outline">About me</Button>
+                </Link>
+            </div>
+        </div>
     );
 }

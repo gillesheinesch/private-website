@@ -1,0 +1,220 @@
+# Personal Website MVP - Gilles Heinesch
+# Overview
+This personal website serves as a professional portfolio and blog platform for Gilles Heinesch. It aims to showcase professional work, share knowledge through blog posts, and engage with readers through a newsletter subscription system. The website will be built using Next.js and modern web technologies to ensure optimal performance and user experience.
+
+# Core Features
+
+## 1. Project Showcase
+- Interactive grid of professional projects
+- Each project includes:
+  - Project title and description
+  - Technologies used (displayed as tags)
+  - Screenshots/images
+  - Links to live demo/GitHub
+  - Key achievements and learnings
+- Filtering capability by technology/category
+- Responsive layout for all devices
+
+## 2. Blog System
+- MDX-based blog posts for rich content
+- Features for each post:
+  - Title and publication date
+  - Reading time estimate
+  - Category tags
+  - Table of contents
+  - Code syntax highlighting
+  - Social sharing buttons
+- Blog listing page with:
+  - Post previews
+  - Category filters
+  - Search functionality
+  - Pagination
+
+## 3. Newsletter Integration (Brevo)
+- Newsletter subscription form
+- Features:
+  - Email input validation
+  - Double opt-in process
+  - Success/error messages
+  - GDPR compliance notice
+  - Integration with Brevo API
+  - Automated welcome email
+
+## 4. About Me Page
+- Professional introduction
+- Skills and expertise
+- Professional experience
+- Education background
+- Contact information
+- Social media links
+- Professional photo
+
+# User Experience
+
+## Target Audience
+1. Potential employers/clients
+2. Fellow developers
+3. Blog readers interested in technical content
+4. Newsletter subscribers
+
+## Key User Flows
+1. Project Discovery:
+   - Land on homepage
+   - Browse project grid
+   - Filter by technology
+   - View detailed project
+   
+2. Blog Reading:
+   - Browse blog posts
+   - Filter by category
+   - Read full post
+   - Share post
+   - Subscribe to newsletter
+
+3. Newsletter Subscription:
+   - View subscription form
+   - Enter email
+   - Confirm subscription
+   - Receive welcome email
+
+# Technical Architecture
+
+## Frontend
+- Next.js 14 with App Router
+- TypeScript for type safety
+- Tailwind CSS for styling
+- shadcn/ui component library for:
+  - Accessible UI components
+  - Dark mode support
+  - Consistent design system
+  - Form components
+  - Dialog and modals
+  - Navigation components
+- MDX for blog content
+- React Query for data fetching
+- Next.js Image optimization
+
+## Content Management
+- MDX files for blog posts
+- Static JSON for project data
+- Git-based content management
+
+## External Services
+- Brevo API for newsletter management
+- Self-hosted on personal infrastructure
+- GitHub for version control
+
+## SEO & Analytics
+- Next.js metadata API
+- Sitemap generation
+- RSS feed for blog posts
+- Self-hosted analytics solution (e.g., Umami or Plausible)
+
+# Development Roadmap
+
+## Phase 1: MVP Foundation
+1. Project Setup
+   - Next.js configuration
+   - TypeScript setup
+   - Basic component structure
+   - Layout implementation
+
+2. Core Pages
+   - Homepage with project grid
+   - Basic blog functionality
+   - Simple about page
+   - Newsletter subscription form
+
+## Phase 2: Enhanced Features
+1. Blog Enhancements
+   - Advanced MDX features
+   - Code syntax highlighting
+   - Table of contents
+   - Related posts
+
+2. Project Showcase Improvements
+   - Advanced filtering
+   - Project case studies
+   - Interactive previews
+
+3. Newsletter Features
+   - Custom email templates
+   - Subscription preferences
+   - Analytics dashboard
+
+# Logical Dependency Chain
+
+1. Foundation (Must be completed first)
+   - Next.js project setup
+   - TypeScript configuration
+   - Basic routing
+   - Layout components
+
+2. Core Features (Build in parallel)
+   - Project showcase structure
+   - Basic blog system
+   - About page content
+   - Newsletter form
+
+3. Enhancement Layer
+   - MDX configuration
+   - Advanced styling
+   - Interactive features
+   - API integrations
+
+# Risks and Mitigations
+
+## Technical Risks
+1. MDX Configuration
+   - Risk: Complex setup and maintenance
+   - Mitigation: Start with basic MDX and gradually add features
+
+2. Newsletter Integration
+   - Risk: API integration complexity
+   - Mitigation: Begin with simple subscription form, add features incrementally
+
+3. Performance
+   - Risk: Image loading and page speed
+   - Mitigation: Use Next.js Image optimization and lazy loading
+
+## Resource Constraints
+1. Content Creation
+   - Risk: Time needed for quality content
+   - Mitigation: Start with minimal content, create template structure
+
+2. Design Requirements
+   - Risk: Complex UI components
+   - Mitigation: Use existing UI libraries, focus on functionality first
+
+# Success Metrics
+- Website load time under 2 seconds
+- Blog post reading time tracking
+- Newsletter subscription rate
+- Project showcase engagement
+- Mobile responsiveness score
+
+# Appendix
+
+## Technology Stack Details
+- Next.js 14
+- TypeScript
+- Tailwind CSS
+- shadcn/ui
+- MDX
+- Brevo API
+- Self-hosted infrastructure
+
+## Deployment Requirements
+- Node.js runtime environment
+- SSL certificate setup
+- Nginx reverse proxy
+- Docker containerization
+- CI/CD pipeline configuration
+- Backup strategy
+- Monitoring setup
+
+## Content Guidelines
+- Blog post structure
+- Project showcase format
+- Image optimization requirements
+- SEO best practices 

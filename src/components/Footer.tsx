@@ -1,16 +1,13 @@
-import React from 'react';
-import { Box, Container, Typography } from '@mui/material';
+import React from "react";
 
 const Footer: React.FC = () => {
-  return (
-    <Box component="footer" sx={{ mt: 4, mb: 2}}>
-        <Container maxWidth="lg">
-            <Typography variant="body1" align='center'>
-                &copy; {new Date().getFullYear()}{' '} Gilles Heinesch
-            </Typography>
-        </Container>
-    </Box>
-  );
+    return (
+        <footer className="mt-8 mb-4 py-4 border-t border-gray-200">
+            <div className="container mx-auto px-4">
+                <p className="text-center text-sm text-gray-600">&copy; {new Date().getFullYear()} Gilles Heinesch</p>
+            </div>
+        </footer>
+    );
 };
 
 export default Footer;
