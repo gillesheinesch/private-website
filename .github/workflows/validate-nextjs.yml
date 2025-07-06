@@ -86,12 +86,12 @@ jobs:
                   restore-keys: |
                       typescript-${{ runner.os }}-${{ matrix.node-version }}-
 
-            # Cache ESLint for faster linting
+            # Cache ESLint for faster linting (Next.js uses .next/cache for ESLint caching)
             - name: Cache ESLint
               uses: actions/cache@v4
               with:
-                  path: .eslintcache
-                  key: eslint-${{ runner.os }}-${{ matrix.node-version }}-${{ hashFiles('.eslintrc*', 'eslint.config.*') }}
+                  path: .next/cache
+                  key: eslint-${{ runner.os }}-${{ matrix.node-version }}-${{ hashFiles('.eslintrc*', 'eslint.config.*', 'src/**/*') }}
                   restore-keys: |
                       eslint-${{ runner.os }}-${{ matrix.node-version }}-
 
@@ -132,7 +132,7 @@ jobs:
             - name: Run ESLint
               run: |
                   echo "🔍 Running ESLint for code quality checks..."
-                  npm run lint -- --cache --cache-location .eslintcache
+                  npm run lint
 
             # Run TypeScript type checking
             - name: Run TypeScript type checking
