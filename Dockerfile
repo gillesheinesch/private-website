@@ -55,13 +55,13 @@ RUN echo '{"status":"ok","timestamp":"'$(date -u +%Y-%m-%dT%H:%M:%SZ)'"}' > /app
 
 USER nextjs
 
-EXPOSE 3000
+EXPOSE 3000 80
 
 ENV PORT 3000
 ENV HOSTNAME "0.0.0.0"
 
 # Add health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-  CMD curl -f http://localhost:3000/health || exit 1
+  CMD curl -f http://localhost:${PORT:-3000}/health || exit 1
 
-CMD ["node", "server.js"] 
+CMD ["sh", "-c", "node server.js"] 

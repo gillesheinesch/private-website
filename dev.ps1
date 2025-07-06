@@ -51,13 +51,13 @@ Invoke-Expression "docker-compose $Profiles up --build"
 
 if ($Both) {
     Write-Host "Both environments started!" -ForegroundColor Green
-    Write-Host "Development: http://localhost:3000 (hot reloading)" -ForegroundColor Yellow
-    Write-Host "Production:  http://localhost:4100 (optimized)" -ForegroundColor Yellow
+    Write-Host "Development: http://localhost:1000 (hot reloading)" -ForegroundColor Yellow
+    Write-Host "Production:  http://localhost:1100 (optimized)" -ForegroundColor Yellow
     Write-Host "Hot reloading is enabled on development environment" -ForegroundColor Cyan
     Write-Host "Press Ctrl+C to stop both servers" -ForegroundColor Magenta
 } else {
     Write-Host "Development environment started!" -ForegroundColor Green
-    Write-Host "Access your site at: http://localhost:3000" -ForegroundColor Yellow
+    Write-Host "Access your site at: http://localhost:1000" -ForegroundColor Yellow
     Write-Host "Hot reloading is enabled - changes will be reflected automatically" -ForegroundColor Cyan
     Write-Host "Press Ctrl+C to stop the development server" -ForegroundColor Magenta
 } 

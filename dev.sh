@@ -73,13 +73,13 @@ docker-compose $PROFILES up --build
 
 if [ "$BOTH_ENVIRONMENTS" = true ]; then
     echo -e "${GREEN}✨ Both environments started!${NC}"
-    echo -e "📍 Development: ${YELLOW}http://localhost:3000${NC} (hot reloading)"
-    echo -e "📍 Production:  ${YELLOW}http://localhost:4100${NC} (optimized)"
+    echo -e "📍 Development: ${YELLOW}http://localhost:1000${NC} (hot reloading)"
+    echo -e "📍 Production:  ${YELLOW}http://localhost:1100${NC} (optimized)"
     echo -e "🔄 Hot reloading is enabled on development environment"
     echo -e "🛑 Press Ctrl+C to stop both servers"
 else
     echo -e "${GREEN}✨ Development environment started!${NC}"
-    echo -e "📍 Access your site at: ${YELLOW}http://localhost:3000${NC}"
+    echo -e "📍 Access your site at: ${YELLOW}http://localhost:1000${NC}"
     echo -e "🔄 Hot reloading is enabled - changes will be reflected automatically"
     echo -e "🛑 Press Ctrl+C to stop the development server"
 fi 

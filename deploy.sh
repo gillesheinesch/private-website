@@ -27,9 +27,9 @@ while [[ $# -gt 0 ]]; do
             ;;
         --help|-h)
             echo "Usage: $0 [--dev] [--both] [--help]"
-            echo "  --dev   Deploy development environment (port 3000)"
+            echo "  --dev   Deploy development environment (port 1000)"
             echo "  --both  Deploy both production and development"
-            echo "  (default: production environment on port 4100)"
+            echo "  (default: production environment on port 1100)"
             exit 0
             ;;
         *)
@@ -71,13 +71,13 @@ print_status "Docker is running"
 # Set up profiles based on environment choice
 if [ "$BOTH_ENVIRONMENTS" = true ]; then
     PROFILES="--profile dev --profile prod"
-    PORTS="3000 (dev) and 4100 (prod)"
+    PORTS="1000 (dev) and 1100 (prod)"
 elif [ "$ENVIRONMENT" = "dev" ]; then
     PROFILES="--profile dev"
-    PORTS="3000"
+    PORTS="1000"
 else
     PROFILES="--profile prod"
-    PORTS="4100"
+    PORTS="1100"
 fi
 
 # Stop existing containers
@@ -99,12 +99,12 @@ if [ "$BOTH_ENVIRONMENTS" = true ]; then
         print_status "Containers are running successfully!"
     
         # Test health endpoints
-        PROD_HEALTH=$(curl -f http://localhost:4100/health >/dev/null 2>&1 && echo "✅" || echo "❌")
-        DEV_HEALTH=$(curl -f http://localhost:3000/health >/dev/null 2>&1 && echo "✅" || echo "❌")
+        PROD_HEALTH=$(curl -f http://localhost:1100/health >/dev/null 2>&1 && echo "✅" || echo "❌")
+        DEV_HEALTH=$(curl -f http://localhost:1000/health >/dev/null 2>&1 && echo "✅" || echo "❌")
         
         echo -e "${GREEN}🎉 Deployment successful!${NC}"
-        echo -e "Production:  ${YELLOW}http://localhost:4100${NC} $PROD_HEALTH"
-        echo -e "Development: ${YELLOW}http://localhost:3000${NC} $DEV_HEALTH"
+        echo -e "Production:  ${YELLOW}http://localhost:1100${NC} $PROD_HEALTH"
+        echo -e "Development: ${YELLOW}http://localhost:1000${NC} $DEV_HEALTH"
     else
         print_error "Containers failed to start"
         docker-compose --profile dev --profile prod logs
@@ -115,10 +115,10 @@ elif [ "$ENVIRONMENT" = "dev" ]; then
     if docker-compose --profile dev ps | grep -q "Up"; then
         print_status "Development container is running successfully!"
         
-        if curl -f http://localhost:3000/health >/dev/null 2>&1; then
+        if curl -f http://localhost:1000/health >/dev/null 2>&1; then
             print_status "Health check passed!"
             echo -e "${GREEN}🎉 Development deployment successful!${NC}"
-            echo -e "Development available at: ${YELLOW}http://localhost:3000${NC}"
+            echo -e "Development available at: ${YELLOW}http://localhost:1000${NC}"
         else
             print_warning "Health check failed, but container is running"
         fi
@@ -132,10 +132,10 @@ else
     if docker-compose --profile prod ps | grep -q "Up"; then
         print_status "Production container is running successfully!"
         
-        if curl -f http://localhost:4100/health >/dev/null 2>&1; then
+        if curl -f http://localhost:1100/health >/dev/null 2>&1; then
             print_status "Health check passed!"
             echo -e "${GREEN}🎉 Production deployment successful!${NC}"
-            echo -e "Production available at: ${YELLOW}http://localhost:4100${NC}"
+            echo -e "Production available at: ${YELLOW}http://localhost:1100${NC}"
         else
             print_warning "Health check failed, but container is running"
         fi
