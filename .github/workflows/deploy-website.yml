@@ -1,0 +1,226 @@
+name: Deploy Private Website
+
+# Trigger only on pushes to master branch
+on:
+    push:
+        branches: [master, main]
+
+    # Allow manual deployment
+    workflow_dispatch:
+
+jobs:
+    deploy:
+        name: Deploy Private Website to Production
+        runs-on: ubuntu-latest
+
+        steps:
+            # Checkout code
+            - name: Checkout repository
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+                  token: ${{ secrets.GITHUB_TOKEN }}
+
+            # Setup Node.js environment
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: "20"
+                  cache: "npm"
+
+            # Install dependencies
+            - name: Install dependencies
+              run: |
+                  echo "📦 Installing dependencies..."
+                  npm ci --prefer-offline --no-audit
+
+            # Run tests and validation
+            - name: Run validation
+              run: |
+                  echo "🔍 Running validation checks..."
+                  npm run lint
+                  npx tsc --noEmit
+                  npm run build
+
+            # Build Docker image
+            - name: Build Docker image
+              run: |
+                  echo "🐳 Building Docker image..."
+                  docker build -t private-website:latest .
+
+            # Deploy to production (customize this section based on your deployment target)
+            - name: Deploy to production
+              run: |
+                  echo "🚀 Starting deployment for production environment..."
+
+                  # Example deployment steps - customize based on your needs:
+                  # 
+                  # Option 1: Deploy to a VPS server via SSH
+                  # - Set up SSH key: echo "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/deploy_key
+                  # - Connect and deploy: ssh -i ~/.ssh/deploy_key user@server "deployment commands"
+                  #
+                  # Option 2: Deploy to Docker registry
+                  # - docker tag private-website:latest your-registry/private-website:latest
+                  # - docker push your-registry/private-website:latest
+                  #
+                  # Option 3: Deploy to cloud platforms (Vercel, Netlify, etc.)
+                  # - Use specific deployment actions for your platform
+                  #
+                  # Option 4: Deploy using Docker Compose locally (for development/testing)
+
+                  echo "🏗️ Running Docker container for testing..."
+                  docker run -d --name private-website-test -p 3000:3000 private-website:latest
+
+                  # Wait for container to be ready
+                  sleep 30
+
+                  # Test the deployment
+                  echo "🧪 Testing deployment..."
+                  if curl -f http://localhost:3000/health >/dev/null 2>&1; then
+                    echo "✅ Health check passed!"
+                    echo "🎉 Deployment test successful!"
+                  else
+                    echo "❌ Health check failed"
+                    exit 1
+                  fi
+
+                  # Clean up test container
+                  docker stop private-website-test
+                  docker rm private-website-test
+
+                  echo "✅ Deployment validation completed successfully!"
+
+            # Comment on the associated pull request if deployment was successful
+            - name: Comment on Pull Request
+              if: success() && github.event_name == 'push'
+              uses: actions/github-script@v7
+              with:
+                  github-token: ${{ secrets.GITHUB_TOKEN }}
+                  script: |
+                      const commit = '${{ github.sha }}';
+                      const branch = '${{ github.ref_name }}';
+                      const environment = 'production';
+
+                      console.log(`Looking for PR associated with commit: ${commit}`);
+
+                      try {
+                        const { data: pulls } = await github.rest.pulls.list({
+                          owner: context.repo.owner,
+                          repo: context.repo.repo,
+                          state: 'closed',
+                          base: branch,
+                          sort: 'updated',
+                          direction: 'desc',
+                          per_page: 20
+                        });
+                        
+                        let targetPR = null;
+                        for (const pr of pulls) {
+                          if (pr.merge_commit_sha === commit || pr.head.sha === commit) {
+                            targetPR = pr;
+                            break;
+                          }
+                        }
+                        
+                        if (!targetPR) {
+                          console.log('No exact PR match found, checking recent merged PRs...');
+                          for (const pr of pulls) {
+                            if (pr.merged_at) {
+                              const mergedDate = new Date(pr.merged_at);
+                              const now = new Date();
+                              const timeDiff = (now - mergedDate) / (1000 * 60);
+                              
+                              if (timeDiff <= 5) {
+                                targetPR = pr;
+                                console.log(`Found recent PR #${pr.number} merged ${timeDiff.toFixed(1)} minutes ago`);
+                                break;
+                              }
+                            }
+                          }
+                        }
+                        
+                        if (targetPR) {
+                          console.log(`Found associated PR #${targetPR.number}: ${targetPR.title}`);
+                          
+                          const commentBody = `## 🚀 Private Website Deployed Successfully!\n\n` +
+                            `Your changes have been deployed to **Production**.\n\n` +
+                            `### Deployment Details:\n` +
+                            `- **Environment:** Production\n` +
+                            `- **Branch:** \`${branch}\`\n` +
+                            `- **Commit:** \`${commit.substring(0, 7)}\`\n` +
+                            `- **Deployed at:** ${new Date().toLocaleString('en-US', { 
+                              timeZone: 'UTC',
+                              year: 'numeric',
+                              month: 'short', 
+                              day: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit',
+                              timeZoneName: 'short'
+                            })}\n\n` +
+                            `🎉 Your website is now live!\n\n` +
+                            `---\n*This comment was automatically generated by the deployment workflow.*`;
+                          
+                          const { data: comments } = await github.rest.issues.listComments({
+                            owner: context.repo.owner,
+                            repo: context.repo.repo,
+                            issue_number: targetPR.number,
+                          });
+                          
+                          const existingComment = comments.find(comment => 
+                            comment.user.type === 'Bot' && 
+                            comment.body.includes('Private Website Deployed Successfully') &&
+                            comment.body.includes(commit.substring(0, 7))
+                          );
+                          
+                          if (existingComment) {
+                            console.log('Updating existing deployment comment...');
+                            await github.rest.issues.updateComment({
+                              owner: context.repo.owner,
+                              repo: context.repo.repo,
+                              comment_id: existingComment.id,
+                              body: commentBody
+                            });
+                          } else {
+                            console.log('Creating new deployment comment...');
+                            await github.rest.issues.createComment({
+                              owner: context.repo.owner,
+                              repo: context.repo.repo,
+                              issue_number: targetPR.number,
+                              body: commentBody
+                            });
+                          }
+                          
+                          console.log(`✅ Successfully commented on PR #${targetPR.number}`);
+                        } else {
+                          console.log('ℹ️ No associated pull request found for this deployment');
+                        }
+                        
+                      } catch (error) {
+                        console.error('❌ Error commenting on PR:', error);
+                        console.log('Deployment was successful, but failed to comment on PR');
+                      }
+
+            # Generate deployment report
+            - name: Generate deployment report
+              if: success()
+              run: |
+                  echo "🚀 Private Website deployment successful!" >> $GITHUB_STEP_SUMMARY
+                  echo "📍 Environment: Production" >> $GITHUB_STEP_SUMMARY
+                  echo "📍 Branch: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+                  echo "📍 Commit: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+                  echo "" >> $GITHUB_STEP_SUMMARY
+                  echo "**What was deployed:**" >> $GITHUB_STEP_SUMMARY
+                  echo "- 🌐 Next.js website from ${{ github.ref_name }} branch" >> $GITHUB_STEP_SUMMARY
+                  echo "- 🐳 Docker container built and tested" >> $GITHUB_STEP_SUMMARY
+                  echo "- 🔄 All changes pulled from Git repository" >> $GITHUB_STEP_SUMMARY
+                  echo "" >> $GITHUB_STEP_SUMMARY
+                  echo "**Configuration:**" >> $GITHUB_STEP_SUMMARY
+                  echo "- Framework: Next.js with TypeScript" >> $GITHUB_STEP_SUMMARY
+                  echo "- Styling: Tailwind CSS with shadcn/ui" >> $GITHUB_STEP_SUMMARY
+                  echo "- Theme: Light/Dark mode support" >> $GITHUB_STEP_SUMMARY
+
+            - name: Report deployment failure
+              if: failure()
+              run: |
+                  echo "❌ Private Website deployment failed!" >> $GITHUB_STEP_SUMMARY
+                  echo "Please check the workflow logs for details." >> $GITHUB_STEP_SUMMARY

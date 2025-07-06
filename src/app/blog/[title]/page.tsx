@@ -1,21 +1,17 @@
-import matter from 'gray-matter';
-import fs from 'fs';
-import path from 'path';
-import moment from 'moment';
-import { Box, Chip, Container, Typography } from "@mui/material";
-import ReactMarkdown from 'react-markdown';
+import { Badge } from "@/components/ui/badge";
+import fs from "fs";
+import matter from "gray-matter";
+import moment from "moment";
+import path from "path";
+import ReactMarkdown from "react-markdown";
 
-const MarkdownH1 = (props: any) => <Typography variant="h4" component="h1" gutterBottom {...props} />;
-const MarkdownH2 = (props: any) => <Typography variant="h5" component="h2" gutterBottom {...props} />;
-const MarkdownH3 = (props: any) => <Typography variant="h6" component="h3" gutterBottom {...props} />;
-const MarkdownP = (props: any) => <Typography variant="body1" component="p" paragraph {...props} />;
-const MarkdownA = (props: any) => <Typography variant="body1" color="primary" component="a" {...props} />;
-const MarkdownLI = (props: any) => <Typography variant="body1" component="li" {...props} />;
-
-type Params = {
-    date: string;
-    title: string;
-};
+// Custom markdown components
+const MarkdownH1 = (props: any) => <h1 className="text-3xl font-bold mb-4" {...props} />;
+const MarkdownH2 = (props: any) => <h2 className="text-2xl font-semibold mb-3" {...props} />;
+const MarkdownH3 = (props: any) => <h3 className="text-xl font-medium mb-2" {...props} />;
+const MarkdownP = (props: any) => <p className="mb-4 leading-relaxed" {...props} />;
+const MarkdownA = (props: any) => <a className="text-primary hover:underline" {...props} />;
+const MarkdownLI = (props: any) => <li className="mb-2" {...props} />;
 
 interface Blog {
     title: string;
@@ -28,7 +24,7 @@ interface Blog {
 }
 
 export async function generateMetadata() {
-    const blogDirectory = path.join(process.cwd(), 'blog');
+    const blogDirectory = path.join(process.cwd(), "blog");
     const filenames = fs.readdirSync(blogDirectory);
 
     let date = "";
@@ -36,18 +32,18 @@ export async function generateMetadata() {
 
     await filenames.map((filename) => {
         const filePath = path.join(blogDirectory, filename);
-        const fileContent = fs.readFileSync(filePath, 'utf8');
+        const fileContent = fs.readFileSync(filePath, "utf8");
         const { data } = matter(fileContent);
 
-        date = data.date
-        title = encodeURIComponent(data.title)
+        date = data.date;
+        title = encodeURIComponent(data.title);
     });
     const decodedTitle = decodeURIComponent(title);
 
     const blog: Blog | undefined = filenames
         .map((filename) => {
             const filePath = path.join(blogDirectory, filename);
-            const fileContent = fs.readFileSync(filePath, 'utf8');
+            const fileContent = fs.readFileSync(filePath, "utf8");
             const { data } = matter(fileContent);
 
             return {
@@ -55,20 +51,16 @@ export async function generateMetadata() {
                 description: data.description,
                 category: data.category,
                 thumbnail: data.thumbnail,
-                date: filename.split('.')[0],
+                date: filename.split(".")[0],
                 tags: data.tags,
                 content: data.content,
             };
         })
-        .find(
-            (blog) =>
-                blog.title === decodedTitle &&
-                blog.date === date
-        );
+        .find((blog) => blog.title === decodedTitle && blog.date === date);
 
     if (!blog) {
         return {
-            title: 'Blog not found',
+            title: "Blog not found",
         };
     }
 
@@ -79,7 +71,7 @@ export async function generateMetadata() {
 }
 
 export default async function Page() {
-    const blogDirectory = path.join(process.cwd(), 'blog');
+    const blogDirectory = path.join(process.cwd(), "blog");
     const filenames = fs.readdirSync(blogDirectory);
 
     let date = "";
@@ -87,18 +79,18 @@ export default async function Page() {
 
     await filenames.map((filename) => {
         const filePath = path.join(blogDirectory, filename);
-        const fileContent = fs.readFileSync(filePath, 'utf8');
+        const fileContent = fs.readFileSync(filePath, "utf8");
         const { data } = matter(fileContent);
 
-        date = data.date
-        title = encodeURIComponent(data.title)
+        date = data.date;
+        title = encodeURIComponent(data.title);
     });
     const decodedTitle = decodeURIComponent(title);
 
     const blog: Blog | undefined = filenames
         .map((filename) => {
             const filePath = path.join(blogDirectory, filename);
-            const fileContent = fs.readFileSync(filePath, 'utf8');
+            const fileContent = fs.readFileSync(filePath, "utf8");
             const { data, content } = matter(fileContent);
 
             return {
@@ -106,51 +98,49 @@ export default async function Page() {
                 description: data.description,
                 category: data.category,
                 thumbnail: data.thumbnail,
-                date: filename.split('.')[0],
+                date: filename.split(".")[0],
                 tags: data.tags,
                 content: content,
             };
         })
-        .find(
-            (blog) =>
-                blog.title === decodedTitle &&
-                blog.date === date
-        );
+        .find((blog) => blog.title === decodedTitle && blog.date === date);
 
     if (!blog) {
-        return <div>Blog not found</div>;
+        return (
+            <div className="container mx-auto px-4 py-8 mt-8">
+                <h1 className="text-2xl font-bold">Blog not found</h1>
+            </div>
+        );
     }
 
     return (
-        <Container maxWidth="lg" sx={{ mt: 8 }}>
-            <Typography variant="h3" component="h1" gutterBottom>
-                {blog.title}
-            </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ textTransform: 'uppercase' }}>
-                {blog.category}
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-                {moment(blog.date).format('DD.MM.YYYY')}
-            </Typography>
-            <Box sx={{ mt: 2 }}>
-                {blog.tags.map((tag: string) => (
-                    <Chip key={tag} label={tag} sx={{ mr: 1 }} />
-                ))}
-            </Box>
-            <Box sx={{ mt: 4 }}>
-                <ReactMarkdown
-                    components={{
-                        h1: MarkdownH1,
-                        h2: MarkdownH2,
-                        h3: MarkdownH3,
-                        p: MarkdownP,
-                        a: MarkdownA,
-                        li: MarkdownLI,
-                    }}
-                >
-                    {blog.content}
-                </ReactMarkdown>
-            </Box>
-        </Container>
+        <div className="container mx-auto px-4 py-8 mt-8 max-w-4xl">
+            <article className="prose prose-lg max-w-none">
+                <h1 className="text-4xl font-bold mb-4">{blog.title}</h1>
+                <div className="text-sm text-muted-foreground uppercase tracking-wide mb-2">{blog.category}</div>
+                <div className="text-sm text-muted-foreground mb-4">{moment(blog.date).format("DD.MM.YYYY")}</div>
+                <div className="flex flex-wrap gap-2 mb-8">
+                    {blog.tags.map((tag: string) => (
+                        <Badge key={tag} variant="secondary">
+                            {tag}
+                        </Badge>
+                    ))}
+                </div>
+                <div className="prose-content">
+                    <ReactMarkdown
+                        components={{
+                            h1: MarkdownH1,
+                            h2: MarkdownH2,
+                            h3: MarkdownH3,
+                            p: MarkdownP,
+                            a: MarkdownA,
+                            li: MarkdownLI,
+                        }}
+                    >
+                        {blog.content}
+                    </ReactMarkdown>
+                </div>
+            </article>
+        </div>
     );
 }

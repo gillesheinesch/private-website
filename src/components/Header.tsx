@@ -1,147 +1,82 @@
 "use client";
-import * as React from "react";
-import AppBar from "@mui/material/AppBar";
-import Box from "@mui/material/Box";
-import Toolbar from "@mui/material/Toolbar";
-import IconButton from "@mui/material/IconButton";
-import Typography from "@mui/material/Typography";
-import Menu from "@mui/material/Menu";
-import MenuIcon from "@mui/icons-material/Menu";
-import Container from "@mui/material/Container";
-import Button from "@mui/material/Button";
-import MenuItem from "@mui/material/MenuItem";
+import { Menu, X } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import * as React from "react";
 
-const pages = [
-    {
-        name: "Home",
-        href: "/",
-    },
-    {
-        name: "Projects",
-        href: "/projects",
-    },
-    {
-        name: "Blog",
-        href: "/blog",
-    },
-    {
-        name: "About",
-        href: "/about",
-    },
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+
+const navigation = [
+    { name: "Home", href: "/" },
+    { name: "About", href: "/about" },
+    { name: "Projects", href: "/projects" },
+    { name: "Blog", href: "/blog" },
 ];
 
-function ResponsiveAppBar() {
-    const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
-
-    const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
-        setAnchorElNav(event.currentTarget);
-    };
-
-    const handleCloseNavMenu = () => {
-        setAnchorElNav(null);
-    };
+export default function Header() {
+    const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+    const pathname = usePathname();
 
     return (
-        <AppBar position="static">
-            <Container maxWidth="xl">
-                <Toolbar disableGutters>
-                    <Typography
-                        variant="h6"
-                        noWrap
-                        component="a"
-                        href="/"
-                        sx={{
-                            mr: 2,
-                            display: { xs: "none", md: "flex" },
-                            fontFamily: "monospace",
-                            fontWeight: 700,
-                            letterSpacing: ".3rem",
-                            color: "inherit",
-                            textDecoration: "none",
-                        }}
-                    >
-                        GH
-                    </Typography>
+        <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+            <div className="container flex h-16 max-w-screen-xl items-center justify-between">
+                {/* Logo */}
+                <Link href="/" className="flex items-center space-x-2">
+                    <span className="text-xl font-bold tracking-tight">Gilles Heinesch</span>
+                </Link>
 
-                    <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
-                        <IconButton
-                            size="large"
-                            aria-label="account of current user"
-                            aria-controls="menu-appbar"
-                            aria-haspopup="true"
-                            onClick={handleOpenNavMenu}
-                            color="inherit"
+                {/* Desktop Navigation */}
+                <nav className="hidden md:flex items-center space-x-6">
+                    {navigation.map((item) => (
+                        <Link
+                            key={item.name}
+                            href={item.href}
+                            className={cn(
+                                "text-sm font-medium transition-colors hover:text-primary",
+                                pathname === item.href ? "text-foreground" : "text-muted-foreground"
+                            )}
                         >
-                            <MenuIcon />
-                        </IconButton>
-                        <Menu
-                            id="menu-appbar"
-                            anchorEl={anchorElNav}
-                            anchorOrigin={{
-                                vertical: "bottom",
-                                horizontal: "left",
-                            }}
-                            keepMounted
-                            transformOrigin={{
-                                vertical: "top",
-                                horizontal: "left",
-                            }}
-                            open={Boolean(anchorElNav)}
-                            onClose={handleCloseNavMenu}
-                            sx={{ display: { xs: "block", md: "none" } }}
-                        >
-                            {pages.map((page) => (
-                                <Link key={page.name} href={page.href} passHref>
-                                    <MenuItem onClick={handleCloseNavMenu}>
-                                        <Typography textAlign="center">{page.name}</Typography>
-                                    </MenuItem>
-                                </Link>
-                            ))}
-                        </Menu>
-                    </Box>
-                    <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" }, justifyContent: "center" }}>
-                        {" "}
-                        <Typography
-                            variant="h5"
-                            noWrap
-                            component="a"
-                            href="/"
-                            sx={{
-                                mr: 2,
-                                display: { xs: "flex", md: "none" },
-                                flexGrow: 1,
-                                fontFamily: "monospace",
-                                fontWeight: 700,
-                                letterSpacing: ".3rem",
-                                color: "inherit",
-                                textDecoration: "none",
-                            }}
-                        >
-                            GH
-                        </Typography>
-                    </Box>
-                    <Box sx={{ display: { xs: "none", md: "flex" }, flexGrow: 1 }}></Box>
-                    <Box sx={{ display: { xs: "none", md: "flex" }, alignContent: "end" }}>
-                        {pages.map((page) => (
+                            {item.name}
+                        </Link>
+                    ))}
+                </nav>
+
+                {/* Mobile Menu Button */}
+                <div className="md:hidden">
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setIsMenuOpen(!isMenuOpen)}
+                        aria-label="Toggle menu"
+                    >
+                        {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+                    </Button>
+                </div>
+            </div>
+
+            {/* Mobile Navigation */}
+            {isMenuOpen && (
+                <div className="md:hidden">
+                    <div className="px-2 pt-2 pb-3 space-y-1 border-t bg-background">
+                        {navigation.map((item) => (
                             <Link
-                                key={page.name}
-                                href={page.href}
-                                passHref
-                                style={{
-                                    textDecoration: "none",
-                                }}
+                                key={item.name}
+                                href={item.href}
+                                className={cn(
+                                    "block px-3 py-2 text-base font-medium rounded-md transition-colors",
+                                    pathname === item.href
+                                        ? "text-foreground bg-muted"
+                                        : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                                )}
+                                onClick={() => setIsMenuOpen(false)}
                             >
-                                <Button onClick={handleCloseNavMenu} sx={{ my: 2, color: "white", display: "block" }}>
-                                    {page.name}
-                                </Button>
+                                {item.name}
                             </Link>
                         ))}
-                    </Box>
-                </Toolbar>
-            </Container>
-        </AppBar>
+                    </div>
+                </div>
+            )}
+        </header>
     );
 }
-
-export default ResponsiveAppBar;
