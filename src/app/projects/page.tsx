@@ -1,7 +1,22 @@
 import { Building, ExternalLink, Github } from "lucide-react";
 import Link from "next/link";
 
-const projects = [
+// TypeScript interface for project data
+interface Project {
+    title: string;
+    description: string;
+    tags: string[];
+    category: string;
+    role: string;
+    year: string;
+    status: "Active" | "Completed";
+    website: string;
+    github: string;
+    image: string;
+    featured: boolean;
+}
+
+const projects: Project[] = [
     {
         title: "Tegi S.à r.l.-S.",
         description:
@@ -62,10 +77,15 @@ const projects = [
         title: "RosterX Web Application",
         description:
             "RosterX parses flight crew schedules into .ics files, allowing users to import their rosters into their preferred calendar application.",
-        labels: ["React", "Tailwind CSS", "Node.js"],
-        position: "Developer",
+        tags: ["React", "Tailwind CSS", "Node.js"],
+        category: "Development",
+        role: "Developer",
+        year: "2024",
+        status: "Active",
         website: "",
         github: "",
+        image: "/projects/rosterx.jpg",
+        featured: false,
     },
 ];
 
@@ -136,7 +156,7 @@ export default function Projects() {
                                 <p className="text-muted-foreground text-sm mb-4 line-clamp-3">{project.description}</p>
 
                                 <div className="flex flex-wrap gap-2 mb-4">
-                                    {project.tags.slice(0, 3).map((tag) => (
+                                    {project.tags?.slice(0, 3).map((tag) => (
                                         <span
                                             key={tag}
                                             className="px-2 py-1 bg-secondary text-secondary-foreground rounded text-xs"
@@ -144,7 +164,7 @@ export default function Projects() {
                                             {tag}
                                         </span>
                                     ))}
-                                    {project.tags.length > 3 && (
+                                    {project.tags && project.tags.length > 3 && (
                                         <span className="px-2 py-1 bg-muted text-muted-foreground rounded text-xs">
                                             +{project.tags.length - 3}
                                         </span>
