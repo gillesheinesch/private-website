@@ -1,0 +1,83 @@
+# Docker Compose for Private Website (heinesch.com)
+
+services:
+    # Development service - optimized for fast rebuilds
+    private-website-dev:
+        build:
+            context: .
+            dockerfile: Dockerfile.dev
+        ports:
+            - "4500:3000"
+        volumes:
+            # Bind mount source code for hot reloading
+            - ./src:/app/src:ro
+            - ./public:/app/public:ro
+            - ./blog:/app/blog:ro
+            - ./package.json:/app/package.json:ro
+            - ./package-lock.json:/app/package-lock.json:ro
+            - ./next.config.ts:/app/next.config.ts:ro
+            - ./tsconfig.json:/app/tsconfig.json:ro
+            # Keep node_modules and build cache in container
+            - node_modules_cache:/app/node_modules
+            - next_cache:/app/.next
+        environment:
+            - NODE_ENV=development
+            - FAST_REFRESH=true
+        healthcheck:
+            test: ["CMD", "curl", "-f", "http://localhost:3000"]
+            interval: 30s
+            timeout: 10s
+            retries: 3
+            start_period: 15s
+        profiles:
+            - dev
+
+    # Development service for deployment - no volume mounts
+    private-website-dev-deploy:
+        build:
+            context: .
+            dockerfile: Dockerfile.dev
+        ports:
+            - "4500:3000"
+        environment:
+            - NODE_ENV=production
+        healthcheck:
+            test: ["CMD", "curl", "-f", "http://localhost:3000"]
+            interval: 30s
+            timeout: 10s
+            retries: 3
+            start_period: 15s
+        profiles:
+            - dev-deploy
+
+    # Production service
+    private-website-prod:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        ports:
+            - "4500:3000"
+        environment:
+            - NODE_ENV=production
+        restart: unless-stopped
+        healthcheck:
+            test: ["CMD", "curl", "-f", "http://localhost:3000"]
+            interval: 30s
+            timeout: 3s
+            retries: 3
+            start_period: 10s
+        profiles:
+            - prod
+
+volumes:
+    # Cache node_modules in a named volume for faster development builds
+    node_modules_cache:
+        driver: local
+    # Cache Next.js build files for faster development
+    next_cache:
+        driver: local
+
+networks:
+    default:
+        name: private-website-net
+        external: false 

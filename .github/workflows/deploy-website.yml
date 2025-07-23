@@ -1,0 +1,314 @@
+name: Deploy Private Website
+
+# Trigger only on pushes to master branch
+on:
+    push:
+        branches: [master]
+
+    # Allow manual deployment (master only)
+    workflow_dispatch:
+
+jobs:
+    deploy:
+        name: Deploy Private Website to Production Server
+        runs-on: ubuntu-latest
+
+        steps:
+            # Checkout code (needed for self-hosted runners)
+            - name: Checkout repository
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+                  token: ${{ secrets.GITHUB_TOKEN }}
+
+            # Deploy to production
+            - name: Deploy to production
+              run: |
+                  echo "🚀 Starting deployment for production environment..."
+
+                  # Setup SSH key for connecting to VPS server
+                  echo "🔐 Setting up SSH key for VPS server connection..."
+                  mkdir -p ~/.ssh
+                  echo "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/deploy_key
+                  chmod 600 ~/.ssh/deploy_key
+
+                  # Add your VPS server to known hosts 
+                  DEPLOY_HOST="${{ secrets.DEPLOY_HOST }}"
+                  DEPLOY_USER="${{ secrets.DEPLOY_USER }}"
+                  echo "🔍 Connecting to: $DEPLOY_USER@$DEPLOY_HOST"
+                  ssh-keyscan -H "$DEPLOY_HOST" >> ~/.ssh/known_hosts 2>/dev/null || true
+
+                  # Test SSH key permissions and format
+                  echo "🔍 Checking SSH key setup..."
+                  ls -la ~/.ssh/
+                  echo "🔍 SSH key fingerprint:"
+                  ssh-keygen -lf ~/.ssh/deploy_key || echo "❌ SSH key format issue"
+
+                  # Connect to VPS as deploy user and perform deployment
+                  ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no "$DEPLOY_USER@$DEPLOY_HOST" << 'EOF'
+                  set -e
+
+                  TARGET_DIR="/home/gilles/websites/private-website"
+                  REPO_URL="git@github.com:GillesHeinesch/private-website.git"
+                  BRANCH="master"
+
+                  echo "🔍 Connected as user: $(whoami)"
+                  echo "📁 Working in directory: $(pwd)"
+                  echo "🌐 Server hostname: $(hostname)"
+
+                  # Change to the target directory
+                  cd "$TARGET_DIR" || {
+                    echo "❌ Cannot access $TARGET_DIR"
+                    exit 1
+                  }
+
+                  echo "✅ Successfully changed to: $(pwd)"
+
+                  # Verify we're in the correct project directory
+                  if [ ! -f "package.json" ] || [ ! -f "docker-compose.yml" ]; then
+                    echo "❌ This doesn't appear to be the correct project directory!"
+                    exit 1
+                  fi
+
+                  echo "✅ Confirmed: We're in the correct project directory"
+
+                  # Pull latest changes from master branch
+                  echo "📥 Pulling latest changes from master branch..."
+                  git checkout master
+                  git fetch origin
+                  git reset --hard origin/master
+
+                  # Verify essential files exist
+                  echo "🔍 Verifying deployment files..."
+                  if [ ! -f "package.json" ] || [ ! -f "docker-compose.yml" ]; then
+                    echo "❌ Essential files not found! Deployment cannot continue."
+                    exit 1
+                  fi
+                  echo "✅ Essential files verified"
+
+                  # Docker operations - Rolling Update with minimal downtime
+                  echo "🔄 Starting rolling update deployment..."
+
+                  # Build new image first (without stopping current container)
+                  echo "🏗️ Building new image..."
+                  docker-compose --profile prod build
+
+                  # Create temporary container to test the new build
+                  echo "🧪 Testing new build on temporary port 4502..."
+
+                  # Get the correct image name from docker-compose
+                  IMAGE_NAME=$(docker-compose --profile prod images -q private-website-prod 2>/dev/null | head -1)
+                  if [ -z "$IMAGE_NAME" ]; then
+                    PROJECT_DIR=$(basename $(pwd))
+                    IMAGE_NAME="${PROJECT_DIR}-private-website-prod"
+                    echo "🔍 Using fallback image name: $IMAGE_NAME"
+                  else
+                    echo "🔍 Found image from docker-compose: $IMAGE_NAME"
+                  fi
+
+                  echo "🐳 Starting test container with image: $IMAGE_NAME"
+                  docker run -d --name temp-private-website-test-prod -p 4502:3000 "$IMAGE_NAME"
+
+                  # Wait and test the temporary container
+                  echo "⏳ Waiting for test container to be ready..."
+                  sleep 60
+
+                  # Test new container
+                  echo "🔍 Testing new container..."
+                  NEW_BUILD_READY=false
+                  for i in {1..12}; do
+                    if curl -f -s -o /dev/null "http://localhost:4502"; then
+                      echo "✅ New build is working!"
+                      NEW_BUILD_READY=true
+                      break
+                    else
+                      echo "⏳ Port 4502 not responding yet... ($(( i * 10 ))s elapsed)"
+                      sleep 10
+                    fi
+                  done
+
+                  # Clean up test container
+                  docker stop temp-private-website-test-prod || true
+                  docker rm temp-private-website-test-prod || true
+
+                  if [ "$NEW_BUILD_READY" = "true" ]; then
+                    echo "🔄 New build tested successfully! Switching to new version..."
+                    
+                    # Quick switch: stop old, start new
+                    echo "🛑 Stopping old container..."
+                    docker-compose --profile prod down
+                    
+                    echo "🚀 Starting new container..."
+                    docker-compose --profile prod up -d
+                    
+                    echo "⏳ Waiting for new container to be ready..."
+                    sleep 10
+                    
+                    # Final verification
+                    for i in {1..6}; do
+                      if curl -f http://localhost:4500 >/dev/null 2>&1; then
+                        echo "✅ Port 4500 is responding!"
+                        echo "🎉 Rolling update successful!"
+                        break
+                      elif [ $i -eq 6 ]; then
+                        echo "⚠️ Port 4500 not responding after 60 seconds"
+                      else
+                        echo "⏳ Attempt $i/6: Waiting for port to respond... ($(( i * 10 ))s)"
+                        sleep 10
+                      fi
+                    done
+                  else
+                    echo "❌ New build failed testing - aborting deployment"
+                    exit 1
+                  fi
+
+                  echo "🧹 Cleaning up old images..."
+                  docker image prune -f
+
+                  # Display deployment summary
+                  echo ""
+                  echo "📊 Deployment Summary:"
+                  echo "- Environment: production"
+                  echo "- Branch: master"
+                  echo "- Port: 4500"
+                  echo "- Directory: $(pwd)"
+                  echo "- Deployment time: $(date)"
+
+                  EOF
+
+                  echo "✅ SSH deployment to production completed successfully!"
+
+            # Comment on the associated pull request if deployment was successful
+            - name: Comment on Pull Request
+              if: success() && github.event_name == 'push'
+              uses: actions/github-script@v7
+              with:
+                  github-token: ${{ secrets.GITHUB_TOKEN }}
+                  script: |
+                      const commit = '${{ github.sha }}';
+                      const branch = 'master';
+                      const environment = 'production';
+
+                      console.log(`Looking for PR associated with commit: ${commit}`);
+
+                      try {
+                        const { data: pulls } = await github.rest.pulls.list({
+                          owner: context.repo.owner,
+                          repo: context.repo.repo,
+                          state: 'closed',
+                          base: branch,
+                          sort: 'updated',
+                          direction: 'desc',
+                          per_page: 20
+                        });
+                        
+                        let targetPR = null;
+                        for (const pr of pulls) {
+                          if (pr.merge_commit_sha === commit || pr.head.sha === commit) {
+                            targetPR = pr;
+                            break;
+                          }
+                        }
+                        
+                        if (!targetPR) {
+                          console.log('No exact PR match found, checking recent merged PRs...');
+                          for (const pr of pulls) {
+                            if (pr.merged_at) {
+                              const mergedDate = new Date(pr.merged_at);
+                              const now = new Date();
+                              const timeDiff = (now - mergedDate) / (1000 * 60);
+                              
+                              if (timeDiff <= 5) {
+                                targetPR = pr;
+                                console.log(`Found recent PR #${pr.number} merged ${timeDiff.toFixed(1)} minutes ago`);
+                                break;
+                              }
+                            }
+                          }
+                        }
+                        
+                        if (targetPR) {
+                          console.log(`Found associated PR #${targetPR.number}: ${targetPR.title}`);
+                          
+                          const commentBody = `## 🚀 Private Website Deployed Successfully!\n\n` +
+                            `Your changes have been deployed to **Production**.\n\n` +
+                            `📍 **View your changes:** [https://heinesch.com](https://heinesch.com)\n\n` +
+                            `### Deployment Details:\n` +
+                            `- **Environment:** Production\n` +
+                            `- **Branch:** \`master\`\n` +
+                            `- **Commit:** \`${commit.substring(0, 7)}\`\n` +
+                            `- **Deployed at:** ${new Date().toLocaleString('en-US', { 
+                              timeZone: 'UTC',
+                              year: 'numeric',
+                              month: 'short', 
+                              day: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit',
+                              timeZoneName: 'short'
+                            })}\n\n` +
+                            `🎉 Your personal website is now live!\n\n` +
+                            `---\n*This comment was automatically generated by the deployment workflow.*`;
+                          
+                          const { data: comments } = await github.rest.issues.listComments({
+                            owner: context.repo.owner,
+                            repo: context.repo.repo,
+                            issue_number: targetPR.number,
+                          });
+                          
+                          const existingComment = comments.find(comment => 
+                            comment.user.type === 'Bot' && 
+                            comment.body.includes('Private Website Deployed Successfully') &&
+                            comment.body.includes(commit.substring(0, 7))
+                          );
+                          
+                          if (existingComment) {
+                            console.log('Updating existing deployment comment...');
+                            await github.rest.issues.updateComment({
+                              owner: context.repo.owner,
+                              repo: context.repo.repo,
+                              comment_id: existingComment.id,
+                              body: commentBody
+                            });
+                          } else {
+                            console.log('Creating new deployment comment...');
+                            await github.rest.issues.createComment({
+                              owner: context.repo.owner,
+                              repo: context.repo.repo,
+                              issue_number: targetPR.number,
+                              body: commentBody
+                            });
+                          }
+                          
+                          console.log(`✅ Successfully commented on PR #${targetPR.number}`);
+                        } else {
+                          console.log('ℹ️ No associated pull request found for this deployment');
+                        }
+                        
+                      } catch (error) {
+                        console.error('❌ Error commenting on PR:', error);
+                        console.log('Deployment was successful, but failed to comment on PR');
+                      }
+
+            # Generate deployment report
+            - name: Generate deployment report
+              if: success()
+              run: |
+                  echo "🚀 Private Website deployment successful!" >> $GITHUB_STEP_SUMMARY
+                  echo "📍 Environment: Production" >> $GITHUB_STEP_SUMMARY
+                  echo "📍 Branch: master" >> $GITHUB_STEP_SUMMARY
+                  echo "📍 Commit: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+                  echo "" >> $GITHUB_STEP_SUMMARY
+                  echo "**What was deployed:**" >> $GITHUB_STEP_SUMMARY
+                  echo "- 🌐 Next.js personal website from master branch" >> $GITHUB_STEP_SUMMARY
+                  echo "- 🐳 Docker container rebuilt and restarted" >> $GITHUB_STEP_SUMMARY
+                  echo "- 🔄 All changes pulled from Git repository" >> $GITHUB_STEP_SUMMARY
+                  echo "" >> $GITHUB_STEP_SUMMARY
+                  echo "**Access URL:**" >> $GITHUB_STEP_SUMMARY
+                  echo "- Production: https://heinesch.com" >> $GITHUB_STEP_SUMMARY
+                  echo "- Health Check: http://localhost:4500" >> $GITHUB_STEP_SUMMARY
+
+            - name: Report deployment failure
+              if: failure()
+              run: |
+                  echo "❌ Private Website deployment failed!" >> $GITHUB_STEP_SUMMARY
+                  echo "Please check the workflow logs for details." >> $GITHUB_STEP_SUMMARY
