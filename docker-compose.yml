@@ -73,7 +73,7 @@ volumes:
     # Cache node_modules in a named volume for faster development builds
     node_modules_cache:
         driver: local
-    # Cache Next.js build files for faster development
+    # Cache Next.js build files for faster development!
     next_cache:
         driver: local
 
