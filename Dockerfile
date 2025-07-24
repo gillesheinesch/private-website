@@ -41,12 +41,12 @@ COPY --from=builder --chown=nextjs:nodejs /app/blog ./blog
 # Switch to non-root user
 USER nextjs
 
-# Expose port 4500
-EXPOSE 4500
+# Expose port 80
+EXPOSE 80
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
-    CMD curl -f http://localhost:4500 || exit 1
+    CMD curl -f http://localhost:80 || exit 1
 
 # Start the application
 CMD ["npm", "start"] 
