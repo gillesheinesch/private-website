@@ -79,5 +79,5 @@ volumes:
 
 networks:
     default:
-        name: private-website-net
-        external: false 
+        name: npm_shared
+        external: true
