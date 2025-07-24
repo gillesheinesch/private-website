@@ -40,12 +40,12 @@ RUN adduser -S nextjs -u 1001
 RUN chown -R nextjs:nodejs /app
 USER nextjs
 
-# Expose port 3000
-EXPOSE 3000
+# Expose port 4500
+EXPOSE 4500
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
-    CMD curl -f http://localhost:3000 || exit 1
+    CMD curl -f http://localhost:4500 || exit 1
 
 # Start the application
 CMD ["npm", "start"] 

@@ -6,8 +6,8 @@ services:
         build:
             context: .
             dockerfile: Dockerfile.dev
-        expose:
-            - "3000"  # Internal port only - nginx proxy routes through port 80
+        ports:
+            - "80:4500"  # External port 80 maps to internal port 4500
         volumes:
             # Bind mount source code for hot reloading
             - ./src:/app/src:ro
@@ -23,6 +23,7 @@ services:
         environment:
             - NODE_ENV=development
             - FAST_REFRESH=true
+            - PORT=4500
         healthcheck:
             test: ["CMD", "curl", "-f", "http://localhost:3000"]
             interval: 30s
@@ -37,12 +38,13 @@ services:
         build:
             context: .
             dockerfile: Dockerfile.dev
-        expose:
-            - "3000"  # Internal port only - nginx proxy routes through port 80
+        ports:
+            - "80:4500"  # External port 80 maps to internal port 4500
         environment:
             - NODE_ENV=production
+            - PORT=4500
         healthcheck:
-            test: ["CMD", "curl", "-f", "http://localhost:3000"]
+            test: ["CMD", "curl", "-f", "http://localhost:4500"]
             interval: 30s
             timeout: 10s
             retries: 3
@@ -55,13 +57,14 @@ services:
         build:
             context: .
             dockerfile: Dockerfile
-        expose:
-            - "3000"  # Internal port only - nginx proxy routes through port 80
+        ports:
+            - "80:4500"  # External port 80 maps to internal port 4500
         environment:
             - NODE_ENV=production
+            - PORT=4500
         restart: unless-stopped
         healthcheck:
-            test: ["CMD", "curl", "-f", "http://localhost:3000"]
+            test: ["CMD", "curl", "-f", "http://localhost:4500"]
             interval: 30s
             timeout: 3s
             retries: 3
