@@ -7,7 +7,7 @@ services:
             context: .
             dockerfile: Dockerfile.dev
         ports:
-            - "80:4500" # External port 80 maps to internal port 4500
+            - "4500:80" # External port 4500 maps to internal port 80
         volumes:
             # Bind mount source code for hot reloading
             - ./src:/app/src:ro
@@ -23,7 +23,7 @@ services:
         environment:
             - NODE_ENV=development
             - FAST_REFRESH=true
-            - PORT=4500
+            - PORT=80
         healthcheck:
             test: ["CMD", "curl", "-f", "http://localhost:3000"]
             interval: 30s
@@ -39,12 +39,12 @@ services:
             context: .
             dockerfile: Dockerfile.dev
         ports:
-            - "80:4500" # External port 80 maps to internal port 4500
+            - "4500:80" # External port 4500 maps to internal port 80
         environment:
             - NODE_ENV=production
-            - PORT=4500
+            - PORT=80
         healthcheck:
-            test: ["CMD", "curl", "-f", "http://localhost:4500"]
+            test: ["CMD", "curl", "-f", "http://localhost:80"]
             interval: 30s
             timeout: 10s
             retries: 3
@@ -58,13 +58,13 @@ services:
             context: .
             dockerfile: Dockerfile
         ports:
-            - "80:4500" # External port 80 maps to internal port 4500
+            - "4500:80" # External port 4500 maps to internal port 80
         environment:
             - NODE_ENV=production
-            - PORT=4500
+            - PORT=80
         restart: unless-stopped
         healthcheck:
-            test: ["CMD", "curl", "-f", "http://localhost:4500"]
+            test: ["CMD", "curl", "-f", "http://localhost:80"]
             interval: 30s
             timeout: 3s
             retries: 3
