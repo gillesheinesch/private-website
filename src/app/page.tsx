@@ -1,6 +1,6 @@
-import React from "react";
-import { Container, Typography, Box, Alert, Button } from "@mui/material";
+import { Box, Button, Container, Typography } from "@mui/material";
 import Link from "next/link";
+import React from "react";
 
 export default function Home() {
     return (
@@ -37,9 +37,13 @@ export default function Home() {
                             </Button>
                         </Link>
                         <Link href="/blog" passHref>
-                            <Button variant="outlined" color="primary" sx={{
+                            <Button
+                                variant="outlined"
+                                color="primary"
+                                sx={{
                                     ml: 2,
-                                }}>
+                                }}
+                            >
                                 Blog
                             </Button>
                         </Link>
