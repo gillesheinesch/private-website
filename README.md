@@ -6,10 +6,10 @@ Personal website with blog functionality built with Next.js and Material-UI.
 
 **Private Website** is a Next.js frontend application featuring:
 
-- Personal portfolio content
-- Blog functionality with markdown posts
-- Material-UI design system
-- Responsive design
+-   Personal portfolio content
+-   Blog functionality with markdown posts
+-   Material-UI design system
+-   Responsive design
 
 **Deployment**: <http://localhost:4500> (Development/Production)
 
@@ -17,8 +17,8 @@ Personal website with blog functionality built with Next.js and Material-UI.
 
 ### Required Software
 
-- Docker and Docker Compose installed
-- Git for cloning repository
+-   Docker and Docker Compose installed
+-   Git for cloning repository
 
 ### Network Setup
 
@@ -61,12 +61,12 @@ docker-compose --profile dev up --build
 
 ### Development Features
 
-- ✅ Hot reloading via volume mounts
-- ✅ Source code changes reflect immediately
-- ✅ Next.js Fast Refresh enabled
-- ✅ Blog posts auto-reload on changes
-- ✅ Cached node_modules for faster rebuilds
-- ✅ Material-UI theme hot swapping
+-   ✅ Hot reloading via volume mounts
+-   ✅ Source code changes reflect immediately
+-   ✅ Next.js Fast Refresh enabled
+-   ✅ Blog posts auto-reload on changes
+-   ✅ Cached node_modules for faster rebuilds
+-   ✅ Material-UI theme hot swapping
 
 ### Development Commands
 
@@ -89,10 +89,10 @@ docker-compose --profile dev down -v
 
 ### Accessing the Website
 
-- **Development URL**: <http://localhost:4500>
-- **Blog**: <http://localhost:4500/blog>
-- **Projects**: <http://localhost:4500/projects>
-- **About**: <http://localhost:4500/about>
+-   **Development URL**: <http://localhost:4500>
+-   **Blog**: <http://localhost:4500/blog>
+-   **Projects**: <http://localhost:4500/projects>
+-   **About**: <http://localhost:4500/about>
 
 ## 🌐 Production Mode
 
@@ -114,12 +114,12 @@ docker-compose --profile prod up --build -d
 
 ### Production Features
 
-- ✅ Optimized Next.js production build
-- ✅ Static file serving optimized
-- ✅ Non-root user for security
-- ✅ Automatic restart on failure
-- ✅ Blog content included in build
-- ✅ Minimized bundle size
+-   ✅ Optimized Next.js production build
+-   ✅ Static file serving optimized
+-   ✅ Non-root user for security
+-   ✅ Automatic restart on failure
+-   ✅ Blog content included in build
+-   ✅ Minimized bundle size
 
 ### Production Commands
 
@@ -276,8 +276,8 @@ curl http://localhost:4500/blog
 
 ### Development Volumes
 
-- `node_modules_cache`: Cached Node.js dependencies
-- `next_cache`: Next.js build cache
+-   `node_modules_cache`: Cached Node.js dependencies
+-   `next_cache`: Next.js build cache
 
 ### Volume Commands
 
@@ -300,9 +300,9 @@ docker run --rm -v private-website_node_modules_cache:/data -v $(pwd):/backup al
 
 Uses the `npm_shared` external network:
 
-- **Cross-service communication**: Can communicate with other containerized services
-- **External integration**: Connect to databases, APIs, etc.
-- **Network isolation**: Maintains security while enabling communication
+-   **Cross-service communication**: Can communicate with other containerized services
+-   **External integration**: Connect to databases, APIs, etc.
+-   **Network isolation**: Maintains security while enabling communication
 
 ### Network Troubleshooting
 
@@ -355,17 +355,17 @@ docker network inspect npm_shared | grep -A 10 Containers
 
 **Watched directories:**
 
-- `src/app/` - Next.js pages and components
-- `src/components/` - React components
-- `src/styles/` - CSS and styling
-- `blog/` - Blog markdown files
-- `public/` - Static assets
+-   `src/app/` - Next.js pages and components
+-   `src/components/` - React components
+-   `src/styles/` - CSS and styling
+-   `blog/` - Blog markdown files
+-   `public/` - Static assets
 
 **Configuration files also watched:**
 
-- `package.json`
-- `next.config.ts`
-- `tsconfig.json`
+-   `package.json`
+-   `next.config.js`
+-   `tsconfig.json`
 
 ## ⚠️ Troubleshooting
 
@@ -480,11 +480,11 @@ docker volume inspect private-website_node_modules_cache
 
 ### Container Security
 
-- ✅ **Non-root user**: Container runs as non-root
-- ✅ **Multi-stage builds**: Minimize attack surface
-- ✅ **Static content**: No server-side vulnerabilities
-- ✅ **Health checks**: Ensure service availability
-- ✅ **Network isolation**: Isolated in shared network
+-   ✅ **Non-root user**: Container runs as non-root
+-   ✅ **Multi-stage builds**: Minimize attack surface
+-   ✅ **Static content**: No server-side vulnerabilities
+-   ✅ **Health checks**: Ensure service availability
+-   ✅ **Network isolation**: Isolated in shared network
 
 ### Content Security
 
@@ -504,17 +504,17 @@ docker scout quickview
 
 ### Development Performance
 
-- ✅ **Volume caching**: Node modules cached for faster rebuilds
-- ✅ **Layer optimization**: Dockerfile layers optimized for caching
-- ✅ **Hot reloading**: Only changed files trigger rebuilds
-- ✅ **Material-UI optimization**: Theme and component caching
+-   ✅ **Volume caching**: Node modules cached for faster rebuilds
+-   ✅ **Layer optimization**: Dockerfile layers optimized for caching
+-   ✅ **Hot reloading**: Only changed files trigger rebuilds
+-   ✅ **Material-UI optimization**: Theme and component caching
 
 ### Production Performance
 
-- ✅ **Static generation**: Blog posts pre-rendered
-- ✅ **Optimized builds**: Production-optimized bundles
-- ✅ **Image optimization**: Next.js image optimization
-- ✅ **Minimal images**: Multi-stage builds reduce size
+-   ✅ **Static generation**: Blog posts pre-rendered
+-   ✅ **Optimized builds**: Production-optimized bundles
+-   ✅ **Image optimization**: Next.js image optimization
+-   ✅ **Minimal images**: Multi-stage builds reduce size
 
 ### Monitoring Commands
 
@@ -607,10 +607,10 @@ docker run --rm -v private-website_node_modules_cache:/data -v $(pwd):/backup al
 
 ### Useful Resources
 
-- **Next.js Documentation**: <https://nextjs.org/docs>
-- **Material-UI Documentation**: <https://mui.com/getting-started/>
-- **Docker Compose Documentation**: <https://docs.docker.com/compose>
-- **Markdown Guide**: <https://www.markdownguide.org>
+-   **Next.js Documentation**: <https://nextjs.org/docs>
+-   **Material-UI Documentation**: <https://mui.com/getting-started/>
+-   **Docker Compose Documentation**: <https://docs.docker.com/compose>
+-   **Markdown Guide**: <https://www.markdownguide.org>
 
 ---
 
@@ -641,10 +641,10 @@ docker system prune -f                    # Clean Docker
 
 ### Website URLs
 
-- **Homepage**: <http://localhost:4500>
-- **Blog**: <http://localhost:4500/blog>
-- **About**: <http://localhost:4500/about>
-- **Projects**: <http://localhost:4500/projects>
+-   **Homepage**: <http://localhost:4500>
+-   **Blog**: <http://localhost:4500/blog>
+-   **About**: <http://localhost:4500/about>
+-   **Projects**: <http://localhost:4500/projects>
 
 ---
 
