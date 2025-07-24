@@ -11,7 +11,7 @@ Personal website with blog functionality built with Next.js and Material-UI.
 - Material-UI design system
 - Responsive design
 
-**Deployment**: http://localhost:4500 (Development/Production)
+**Deployment**: <http://localhost:4500> (Development/Production)
 
 ## 🐳 Prerequisites
 
@@ -89,10 +89,10 @@ docker-compose --profile dev down -v
 
 ### Accessing the Website
 
-- **Development URL**: http://localhost:4500
-- **Blog**: http://localhost:4500/blog
-- **Projects**: http://localhost:4500/projects
-- **About**: http://localhost:4500/about
+- **Development URL**: <http://localhost:4500>
+- **Blog**: <http://localhost:4500/blog>
+- **Projects**: <http://localhost:4500/projects>
+- **About**: <http://localhost:4500/about>
 
 ## 🌐 Production Mode
 
@@ -335,8 +335,8 @@ docker network inspect npm_shared | grep -A 10 Containers
 
 3. **View changes:**
 
-    - Website: http://localhost:4500
-    - Blog: http://localhost:4500/blog
+    - Website: <http://localhost:4500>
+    - Blog: <http://localhost:4500/blog>
     - Changes auto-reload in browser
 
 4. **View logs:**
@@ -346,6 +346,7 @@ docker network inspect npm_shared | grep -A 10 Containers
     ```
 
 5. **Stop when done:**
+
     ```bash
     docker-compose --profile dev down
     ```
@@ -598,6 +599,7 @@ docker run --rm -v private-website_node_modules_cache:/data -v $(pwd):/backup al
     ```
 
 3. **Test connectivity:**
+
     ```bash
     curl http://localhost:4500
     curl http://localhost:4500/blog
@@ -605,10 +607,10 @@ docker run --rm -v private-website_node_modules_cache:/data -v $(pwd):/backup al
 
 ### Useful Resources
 
-- **Next.js Documentation**: https://nextjs.org/docs
-- **Material-UI Documentation**: https://mui.com/getting-started/
-- **Docker Compose Documentation**: https://docs.docker.com/compose
-- **Markdown Guide**: https://www.markdownguide.org
+- **Next.js Documentation**: <https://nextjs.org/docs>
+- **Material-UI Documentation**: <https://mui.com/getting-started/>
+- **Docker Compose Documentation**: <https://docs.docker.com/compose>
+- **Markdown Guide**: <https://www.markdownguide.org>
 
 ---
 
@@ -639,10 +641,10 @@ docker system prune -f                    # Clean Docker
 
 ### Website URLs
 
-- **Homepage**: http://localhost:4500
-- **Blog**: http://localhost:4500/blog
-- **About**: http://localhost:4500/about
-- **Projects**: http://localhost:4500/projects
+- **Homepage**: <http://localhost:4500>
+- **Blog**: <http://localhost:4500/blog>
+- **About**: <http://localhost:4500/about>
+- **Projects**: <http://localhost:4500/projects>
 
 ---
 
