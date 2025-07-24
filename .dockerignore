@@ -82,5 +82,4 @@ docker-compose*
 .dockerignore
 
 # Project specific files
-blog/
 tasks/ 
