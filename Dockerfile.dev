@@ -23,7 +23,7 @@ RUN chown -R nextjs:nodejs /app
 USER nextjs
 
 # Expose port
-EXPOSE 4500
+EXPOSE 80
 
 # For development: use the dev server
 # For deployment: build and start production server
