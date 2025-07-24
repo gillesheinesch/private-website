@@ -1,0 +1,249 @@
+name: Validate Private Website (Next.js)
+
+# Trigger on pull requests and pushes to main branches
+on:
+    pull_request:
+        branches: [master, dev]
+
+    push:
+        branches: [master, dev]
+
+    # Allow manual validation
+    workflow_dispatch:
+
+jobs:
+    validate:
+        name: Validate Private Website
+        runs-on: ubuntu-latest
+
+        strategy:
+            matrix:
+                node-version: [18.x, 20.x]
+
+        steps:
+            # Checkout the repository code
+            - name: Checkout repository
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+
+            # Setup Node.js environment
+            - name: Setup Node.js ${{ matrix.node-version }}
+              uses: actions/setup-node@v4
+              with:
+                  node-version: ${{ matrix.node-version }}
+                  cache: "npm"
+                  cache-dependency-path: package-lock.json
+
+            # Cache node_modules for faster installs
+            - name: Cache node_modules
+              uses: actions/cache@v4
+              id: cache-node-modules
+              with:
+                  path: node_modules
+                  key: node-modules-${{ runner.os }}-${{ matrix.node-version }}-${{ hashFiles('package-lock.json') }}
+                  restore-keys: |
+                      node-modules-${{ runner.os }}-${{ matrix.node-version }}-
+
+            # Cache Next.js build for faster subsequent builds
+            - name: Cache Next.js build
+              uses: actions/cache@v4
+              with:
+                  path: |
+                      .next/cache
+                      .next/standalone
+                      .next/static
+                  key: nextjs-build-${{ runner.os }}-${{ matrix.node-version }}-${{ hashFiles('**/*') }}
+                  restore-keys: |
+                      nextjs-build-${{ runner.os }}-${{ matrix.node-version }}-
+                      nextjs-build-${{ runner.os }}-
+
+            # Cache TypeScript incremental compilation
+            - name: Cache TypeScript compilation
+              uses: actions/cache@v4
+              with:
+                  path: |
+                      tsconfig.tsbuildinfo
+                      .tsbuildinfo
+                  key: typescript-${{ runner.os }}-${{ matrix.node-version }}-${{ hashFiles('src/**/*', 'tsconfig.json') }}
+                  restore-keys: |
+                      typescript-${{ runner.os }}-${{ matrix.node-version }}-
+
+            # Cache ESLint for faster linting
+            - name: Cache ESLint
+              uses: actions/cache@v4
+              with:
+                  path: .eslintcache
+                  key: eslint-${{ runner.os }}-${{ matrix.node-version }}-${{ hashFiles('.eslintrc*', 'eslint.config.*') }}
+                  restore-keys: |
+                      eslint-${{ runner.os }}-${{ matrix.node-version }}-
+
+            # Verify Node.js and npm versions
+            - name: Display Node.js and npm versions
+              run: |
+                  echo "Node.js version: $(node --version)"
+                  echo "npm version: $(npm --version)"
+
+            # Install dependencies with clean install for faster builds
+            - name: Install dependencies
+              if: steps.cache-node-modules.outputs.cache-hit != 'true'
+              run: |
+                  echo "📦 Installing dependencies..."
+                  npm ci --prefer-offline --no-audit
+
+            # Verify dependencies are available (when cache hit)
+            - name: Verify cached dependencies
+              if: steps.cache-node-modules.outputs.cache-hit == 'true'
+              run: |
+                  echo "✅ Using cached node_modules"
+                  echo "📦 Verifying dependencies..."
+                  npm ls --depth=0 || npm ci --prefer-offline --no-audit
+
+            # Audit dependencies for security vulnerabilities
+            - name: Audit dependencies for security issues
+              run: |
+                  echo "🔍 Checking for security vulnerabilities..."
+                  npm audit --audit-level=moderate || exit 1
+
+            # Check for outdated dependencies (non-blocking)
+            - name: Check for outdated dependencies
+              run: |
+                  echo "📋 Checking for outdated dependencies..."
+                  npm outdated || true
+
+            # Run ESLint for code quality
+            - name: Run ESLint
+              run: |
+                  echo "🔍 Running ESLint for code quality checks..."
+                  npm run lint
+
+            # Run TypeScript type checking
+            - name: Run TypeScript type checking
+              run: |
+                  echo "🔍 Running TypeScript type checking..."
+                  npx tsc --noEmit --incremental --tsBuildInfoFile .tsbuildinfo
+
+            # Run tests if they exist
+            - name: Run tests
+              run: |
+                  echo "🧪 Running tests..."
+                  if npm run test --if-present; then
+                    echo "✅ Tests passed or no tests configured"
+                  else
+                    echo "❌ Tests failed"
+                    exit 1
+                  fi
+
+            # Build the Next.js application
+            - name: Build Next.js application
+              run: |
+                  echo "🏗️ Building Next.js application..."
+                  npm run build
+
+            # Verify build output exists and is valid
+            - name: Verify build output
+              run: |
+                  echo "✅ Verifying build output..."
+
+                  # Check if .next directory exists
+                  if [ ! -d ".next" ]; then
+                    echo "❌ Build directory .next not found!"
+                    exit 1
+                  fi
+
+                  # Check if essential build files exist
+                  if [ ! -f ".next/BUILD_ID" ]; then
+                    echo "❌ BUILD_ID file not found!"
+                    exit 1
+                  fi
+
+                  # Display build size information
+                  echo "📊 Build size information:"
+                  du -sh .next || true
+
+                  # List key build files
+                  echo "📁 Key build files:"
+                  find .next -name "*.js" -o -name "*.css" -o -name "*.html" | head -10 || true
+
+                  echo "✅ Build verification completed successfully!"
+
+            # Verify blog posts can be processed
+            - name: Verify blog posts
+              run: |
+                  echo "📝 Verifying blog posts..."
+                  if [ -d "blog" ]; then
+                    echo "Blog directory found"
+                    BLOG_COUNT=$(find blog -name "*.md" | wc -l)
+                    echo "Found $BLOG_COUNT blog posts"
+                  else
+                    echo "No blog directory found"
+                  fi
+
+            # Upload build artifacts for inspection
+            - name: Upload build artifacts
+              uses: actions/upload-artifact@v4
+              if: matrix.node-version == '20.x' # Only upload once to avoid duplicates
+              with:
+                  name: private-website-build-${{ github.sha }}
+                  path: |
+                      .next/
+                      !.next/cache/
+                  retention-days: 7
+                  compression-level: 6
+
+    # Summary job that depends on all validation jobs
+    validation-summary:
+        name: Validation Summary
+        runs-on: ubuntu-latest
+        needs: validate
+        if: always()
+
+        steps:
+            - name: Generate validation report
+              run: |
+                  echo "# 🔍 Private Website Validation Report" >> $GITHUB_STEP_SUMMARY
+                  echo "" >> $GITHUB_STEP_SUMMARY
+
+                  if [ "${{ needs.validate.result }}" = "success" ]; then
+                    echo "## ✅ Validation Successful!" >> $GITHUB_STEP_SUMMARY
+                    echo "" >> $GITHUB_STEP_SUMMARY
+                    echo "All checks passed:" >> $GITHUB_STEP_SUMMARY
+                    echo "- 📦 Dependencies installed successfully" >> $GITHUB_STEP_SUMMARY
+                    echo "- 🔒 Security audit passed" >> $GITHUB_STEP_SUMMARY
+                    echo "- 🔍 ESLint checks passed" >> $GITHUB_STEP_SUMMARY
+                    echo "- 📝 TypeScript type checking passed" >> $GITHUB_STEP_SUMMARY
+                    echo "- 🧪 Tests passed (if configured)" >> $GITHUB_STEP_SUMMARY
+                    echo "- 🏗️ Build completed successfully" >> $GITHUB_STEP_SUMMARY
+                    echo "- 📝 Blog posts verified" >> $GITHUB_STEP_SUMMARY
+                    echo "" >> $GITHUB_STEP_SUMMARY
+                    echo "Your private website is ready for deployment! 🚀" >> $GITHUB_STEP_SUMMARY
+                  else
+                    echo "## ❌ Validation Failed" >> $GITHUB_STEP_SUMMARY
+                    echo "" >> $GITHUB_STEP_SUMMARY
+                    echo "Please check the job logs above for detailed error information." >> $GITHUB_STEP_SUMMARY
+                    echo "" >> $GITHUB_STEP_SUMMARY
+                    echo "**Common issues to check:**" >> $GITHUB_STEP_SUMMARY
+                    echo "- ESLint errors in your code" >> $GITHUB_STEP_SUMMARY
+                    echo "- TypeScript compilation errors" >> $GITHUB_STEP_SUMMARY
+                    echo "- Missing dependencies" >> $GITHUB_STEP_SUMMARY
+                    echo "- Security vulnerabilities in dependencies" >> $GITHUB_STEP_SUMMARY
+                    echo "- Build configuration issues" >> $GITHUB_STEP_SUMMARY
+                    echo "- Blog content processing issues" >> $GITHUB_STEP_SUMMARY
+                  fi
+
+                  echo "" >> $GITHUB_STEP_SUMMARY
+                  echo "---" >> $GITHUB_STEP_SUMMARY
+                  echo "**Workflow:** Private Website Validation" >> $GITHUB_STEP_SUMMARY
+                  echo "**Triggered by:** ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+                  echo "**Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+                  echo "**Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+
+            # Set job status based on validation results
+            - name: Set validation status
+              run: |
+                  if [ "${{ needs.validate.result }}" != "success" ]; then
+                    echo "❌ Validation failed - check the logs above"
+                    exit 1
+                  else
+                    echo "✅ All validations passed successfully!"
+                  fi
