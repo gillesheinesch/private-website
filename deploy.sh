@@ -27,9 +27,14 @@ while [[ $# -gt 0 ]]; do
             ;;
         --help|-h)
             echo "Usage: $0 [--dev] [--both] [--help]"
-            echo "  --dev   Deploy development environment (port 4500)"
-            echo "  --both  Deploy both production and development"
-            echo "  (default: production environment on port 4500)"
+            echo "  --dev      Deploy development environment"
+            echo "  --both     Deploy both production and development"
+            echo "  (default: production environment on port 80)"
+            echo ""
+            echo "Examples:"
+            echo "  $0              # Production on port 80"
+            echo "  $0 --dev       # Development on port 80"
+            echo "  $0 --both      # Both environments on port 80"
             echo ""
             echo "Website: heinesch.com"
             exit 0
@@ -41,12 +46,13 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
+# Display deployment information
 if [ "$BOTH_ENVIRONMENTS" = true ]; then
-    echo -e "${GREEN}🚀 Deploying Both Private Website Environments...${NC}"
+    echo -e "${GREEN}🚀 Deploying Both Private Website Environments (Port 80)...${NC}"
 elif [ "$ENVIRONMENT" = "dev" ]; then
-    echo -e "${BLUE}🚀 Deploying Private Website (Development)...${NC}"
+    echo -e "${BLUE}🚀 Deploying Private Website (Development - Port 80)...${NC}"
 else
-    echo -e "${GREEN}🚀 Deploying Private Website (Production)...${NC}"
+    echo -e "${GREEN}🚀 Deploying Private Website (Production - Port 80)...${NC}"
 fi
 
 # Function to print colored output
@@ -70,21 +76,33 @@ fi
 
 print_status "Docker is running"
 
+# Check for port conflicts on port 80
+if lsof -i :80 >/dev/null 2>&1; then
+    print_warning "Port 80 is already in use. This may cause conflicts."
+    print_warning "Consider stopping other services using port 80 first."
+    read -p "Continue anyway? (y/N): " -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        print_error "Deployment cancelled."
+        exit 1
+    fi
+fi
+
 # Set up profiles based on environment choice
 if [ "$BOTH_ENVIRONMENTS" = true ]; then
     PROFILES="--profile dev --profile prod"
-    PORTS="4500 (both environments)"
+    ENVIRONMENTS="both environments"
 elif [ "$ENVIRONMENT" = "dev" ]; then
     PROFILES="--profile dev"
-    PORTS="4500"
+    ENVIRONMENTS="development"
 else
     PROFILES="--profile prod"
-    PORTS="4500"
+    ENVIRONMENTS="production"
 fi
 
 # Stop existing containers
 print_status "Stopping existing containers..."
-docker-compose $PROFILES down
+docker-compose --profile dev --profile prod down
 
 # Build and start containers
 print_status "Building and starting Docker containers..."
@@ -97,53 +115,51 @@ sleep 20
 # Check if containers are running
 if [ "$BOTH_ENVIRONMENTS" = true ]; then
     # Check both environments
-    if docker-compose --profile dev --profile prod ps | grep -q "Up"; then
+    if docker-compose $PROFILES ps | grep -q "Up"; then
         print_status "Containers are running successfully!"
         
         # Test health endpoints
-        PROD_HEALTH=$(curl -f http://localhost:4500 >/dev/null 2>&1 && echo "✅" || echo "❌")
-        DEV_HEALTH=$(curl -f http://localhost:4500 >/dev/null 2>&1 && echo "✅" || echo "❌")
+        HEALTH_STATUS=$(curl -f http://localhost:80 >/dev/null 2>&1 && echo "✅" || echo "❌")
         
         echo -e "${GREEN}🎉 Deployment successful!${NC}"
-        echo -e "Production:  ${YELLOW}http://localhost:4500${NC} $PROD_HEALTH"
-        echo -e "Development: ${YELLOW}http://localhost:4500${NC} $DEV_HEALTH"
+        echo -e "Both environments: ${YELLOW}http://localhost:80${NC} $HEALTH_STATUS"
     else
         print_error "Containers failed to start"
-        docker-compose --profile dev --profile prod logs
+        docker-compose $PROFILES logs
         exit 1
     fi
 elif [ "$ENVIRONMENT" = "dev" ]; then
     # Check development environment
-    if docker-compose --profile dev ps | grep -q "Up"; then
+    if docker-compose $PROFILES ps | grep -q "Up"; then
         print_status "Development container is running successfully!"
         
-        if curl -f http://localhost:4500 >/dev/null 2>&1; then
+        if curl -f http://localhost:80 >/dev/null 2>&1; then
             print_status "Health check passed!"
             echo -e "${GREEN}🎉 Development deployment successful!${NC}"
-            echo -e "Development available at: ${YELLOW}http://localhost:4500${NC}"
+            echo -e "Development available at: ${YELLOW}http://localhost:80${NC}"
         else
             print_warning "Health check failed, but container is running"
         fi
     else
         print_error "Development container failed to start"
-        docker-compose --profile dev logs
+        docker-compose $PROFILES logs
         exit 1
     fi
 else
     # Check production environment
-    if docker-compose --profile prod ps | grep -q "Up"; then
+    if docker-compose $PROFILES ps | grep -q "Up"; then
         print_status "Production container is running successfully!"
         
-        if curl -f http://localhost:4500 >/dev/null 2>&1; then
+        if curl -f http://localhost:80 >/dev/null 2>&1; then
             print_status "Health check passed!"
             echo -e "${GREEN}🎉 Production deployment successful!${NC}"
-            echo -e "Production available at: ${YELLOW}http://localhost:4500${NC}"
+            echo -e "Production available at: ${YELLOW}http://localhost:80${NC}"
         else
             print_warning "Health check failed, but container is running"
         fi
     else
         print_error "Production container failed to start"
-        docker-compose --profile prod logs
+        docker-compose $PROFILES logs
         exit 1
     fi
 fi
@@ -158,18 +174,23 @@ print_status "Deployment completed!"
 echo ""
 echo -e "${YELLOW}Useful commands:${NC}"
 if [ "$BOTH_ENVIRONMENTS" = true ]; then
-    echo "  View logs: docker-compose --profile dev --profile prod logs -f"
-    echo "  Stop both: docker-compose --profile dev --profile prod down"
-    echo "  Status: docker-compose --profile dev --profile prod ps"
+    echo "  View logs: docker-compose $PROFILES logs -f"
+    echo "  Stop both: docker-compose $PROFILES down"
+    echo "  Status: docker-compose $PROFILES ps"
 elif [ "$ENVIRONMENT" = "dev" ]; then
-    echo "  View logs: docker-compose --profile dev logs -f"
-    echo "  Stop dev: docker-compose --profile dev down"
-    echo "  Status: docker-compose --profile dev ps"
+    echo "  View logs: docker-compose $PROFILES logs -f"
+    echo "  Stop dev: docker-compose $PROFILES down"
+    echo "  Status: docker-compose $PROFILES ps"
 else
-    echo "  View logs: docker-compose --profile prod logs -f"
-    echo "  Stop prod: docker-compose --profile prod down"
-    echo "  Status: docker-compose --profile prod ps"
+    echo "  View logs: docker-compose $PROFILES logs -f"
+    echo "  Stop prod: docker-compose $PROFILES down"
+    echo "  Status: docker-compose $PROFILES ps"
 fi
+
+echo ""
+echo -e "${YELLOW}Port Information:${NC}"
+echo "  Deployed on port 80 - standard HTTP port"
+echo "  Accessible directly via http://localhost or http://heinesch.com"
 
 echo ""
 echo -e "${YELLOW}Website Information:${NC}"
