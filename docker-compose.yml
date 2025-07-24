@@ -7,7 +7,7 @@ services:
             context: .
             dockerfile: Dockerfile.dev
         ports:
-            - "80:4500"  # External port 80 maps to internal port 4500
+            - "80:4500" # External port 80 maps to internal port 4500
         volumes:
             # Bind mount source code for hot reloading
             - ./src:/app/src:ro
@@ -15,7 +15,7 @@ services:
             - ./blog:/app/blog:ro
             - ./package.json:/app/package.json:ro
             - ./package-lock.json:/app/package-lock.json:ro
-            - ./next.config.ts:/app/next.config.ts:ro
+            - ./next.config.js:/app/next.config.js:ro
             - ./tsconfig.json:/app/tsconfig.json:ro
             # Keep node_modules and build cache in container
             - node_modules_cache:/app/node_modules
@@ -39,7 +39,7 @@ services:
             context: .
             dockerfile: Dockerfile.dev
         ports:
-            - "80:4500"  # External port 80 maps to internal port 4500
+            - "80:4500" # External port 80 maps to internal port 4500
         environment:
             - NODE_ENV=production
             - PORT=4500
@@ -58,7 +58,7 @@ services:
             context: .
             dockerfile: Dockerfile
         ports:
-            - "80:4500"  # External port 80 maps to internal port 4500
+            - "80:4500" # External port 80 maps to internal port 4500
         environment:
             - NODE_ENV=production
             - PORT=4500
