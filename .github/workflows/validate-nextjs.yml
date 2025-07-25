@@ -14,7 +14,7 @@ on:
 jobs:
     validate:
         name: Validate Private Website
-        runs-on: ubuntu-latest
+        runs-on: self-hosted
 
         strategy:
             matrix:
@@ -194,7 +194,7 @@ jobs:
     # Summary job that depends on all validation jobs
     validation-summary:
         name: Validation Summary
-        runs-on: ubuntu-latest
+        runs-on: self-hosted
         needs: validate
         if: always()
 
