@@ -1,16 +1,17 @@
-import React from 'react';
-import { Box, Container, Typography } from '@mui/material';
+import Link from "next/link";
+import { Plane } from "lucide-react";
 
-const Footer: React.FC = () => {
+export default function Footer() {
   return (
-    <Box component="footer" sx={{ mt: 4, mb: 2}}>
-        <Container maxWidth="lg">
-            <Typography variant="body1" align='center'>
-                &copy; {new Date().getFullYear()}{' '} Gilles Heinesch
-            </Typography>
-        </Container>
-    </Box>
+    <footer className="mt-auto border-t border-cockpit-200 bg-cockpit-50 py-6 dark:border-cockpit-800 dark:bg-cockpit-950">
+      <div className="container mx-auto max-w-6xl px-4 text-center text-sm text-cockpit-600 dark:text-cockpit-400">
+        <Link href="/" className="inline-flex items-center gap-1 font-mono">
+          <Plane className="h-4 w-4" />
+          Gilles Heinesch
+        </Link>
+        <span className="mx-2">·</span>
+        <span>&copy; {new Date().getFullYear()}</span>
+      </div>
+    </footer>
   );
-};
-
-export default Footer;
+}

@@ -1,41 +1,51 @@
-import { Avatar, Box, Container, Grid2, Typography } from "@mui/material";
+import Image from "next/image";
 
-export default function About() {
-    return (
-        <Container maxWidth="lg" sx={{ mt: 8 }}>
-            <Box
-                sx={{
-                    py: 1,
-                }}>
-                <Typography variant="h3" component="h1" gutterBottom>
-                    About me
-                </Typography>
+export const metadata = {
+  title: "About",
+  description:
+    "About Gilles Heinesch — aviation enthusiast, web developer based in Luxembourg.",
+};
 
-                <Grid2 container>
-                    <Grid2 size={{
-                        xs: 12,
-                        sm: 6,
-                    }}>
-                        <Avatar
-                            alt="Gilles Heinesch"
-                            src="/images/gillesheinesch.png"
-                            sx={{
-                                width: 300,
-                                height: 300,
-                                mx: "auto",
-                                mb: 2,
-                            }}
-                        />
-                    </Grid2>
-                    <Grid2 size={6}>
-                        <Typography variant="body1" component="p">
-                            <strong>Born:</strong> Luxembourg <br />
-                            <strong>Work:</strong> Luxair S.A, Luxembourg <br />
-                            <strong>Hobbies:</strong> Running, Programming, ...
-                        </Typography>
-                    </Grid2>
-                </Grid2>
-            </Box>
-        </Container>
-    );
+export default function AboutPage() {
+  return (
+    <div className="container mx-auto max-w-4xl px-4 py-12">
+      <header className="mb-8">
+        <h1 className="font-mono text-3xl font-bold tracking-tight md:text-4xl">
+          About me
+        </h1>
+      </header>
+
+      <div className="flex flex-col gap-8 md:flex-row md:items-start">
+        <div className="shrink-0">
+          <Image
+            src="/images/gillesheinesch.png"
+            alt="Gilles Heinesch"
+            width={300}
+            height={300}
+            className="rounded-lg object-cover"
+          />
+        </div>
+        <div className="space-y-4 text-cockpit-700 dark:text-cockpit-300">
+          <p>
+            <strong className="text-cockpit-900 dark:text-cockpit-100">
+              Born:
+            </strong>{" "}
+            Luxembourg
+          </p>
+          <p>
+            <strong className="text-cockpit-900 dark:text-cockpit-100">
+              Work:
+            </strong>{" "}
+            Luxair S.A, Luxembourg
+          </p>
+          <p>
+            <strong className="text-cockpit-900 dark:text-cockpit-100">
+              Hobbies:
+            </strong>{" "}
+            Running, Programming, Aviation
+          </p>
+        </div>
+      </div>
+    </div>
+  );
 }
