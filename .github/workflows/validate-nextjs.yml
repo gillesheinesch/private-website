@@ -23,7 +23,7 @@ jobs:
             - name: Setup Node.js
               uses: actions/setup-node@v4
               with:
-                  node-version: "20.x"
+                  node-version-file: ".nvmrc"
                   cache: "npm"
 
             # Install dependencies
@@ -37,7 +37,7 @@ jobs:
               run: npm run lint
 
             - name: TypeScript check
-              run: npx tsc --noEmit
+              run: npm run typecheck
 
             - name: Unit & integration tests
               run: npm test
