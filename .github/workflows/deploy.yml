@@ -1,11 +1,13 @@
-name: Deploy Private Website
+# CD - Deploy to production on push to master
+name: Deploy
 
-# Trigger only on pushes to master branch
+concurrency:
+    group: deploy-${{ github.ref }}
+    cancel-in-progress: false
+
 on:
     push:
         branches: [master]
-
-    # Allow manual deployment (master only)
     workflow_dispatch:
 
 jobs:
@@ -14,14 +16,12 @@ jobs:
         runs-on: ubuntu-latest
 
         steps:
-            # Checkout code (needed for self-hosted runners)
             - name: Checkout repository
               uses: actions/checkout@v4
               with:
                   fetch-depth: 0
                   token: ${{ secrets.GITHUB_TOKEN }}
 
-            # Deploy to production
             - name: Deploy to production
               run: |
                   echo "🚀 Starting deployment for production environment..."
@@ -178,7 +178,6 @@ jobs:
 
                   echo "✅ SSH deployment to production completed successfully!"
 
-            # Comment on the associated pull request if deployment was successful
             - name: Comment on Pull Request
               if: success() && github.event_name == 'push'
               uses: actions/github-script@v7
@@ -187,7 +186,6 @@ jobs:
                   script: |
                       const commit = '${{ github.sha }}';
                       const branch = 'master';
-                      const environment = 'production';
 
                       console.log(`Looking for PR associated with commit: ${commit}`);
 
@@ -289,7 +287,6 @@ jobs:
                         console.log('Deployment was successful, but failed to comment on PR');
                       }
 
-            # Generate deployment report
             - name: Generate deployment report
               if: success()
               run: |
