@@ -9,6 +9,7 @@ describe("Projects page (integration)", () => {
 
   it("renders project cards", () => {
     render(<ProjectsPage />);
+    expect(screen.getByText("Pilotflows")).toBeInTheDocument();
     expect(screen.getByText("FrëschKëscht S.à r.l.")).toBeInTheDocument();
     expect(screen.getByText("RosterX Web Application")).toBeInTheDocument();
   });

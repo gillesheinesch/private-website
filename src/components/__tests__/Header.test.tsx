@@ -1,12 +1,12 @@
 import { render, screen } from "@testing-library/react";
 import Header from "../Header";
 
-jest.mock("../theme-toggle");
 
 describe("Header", () => {
-  it("renders logo link", () => {
+  it("renders logo link with name", () => {
     render(<Header />);
-    expect(screen.getByRole("link", { name: /gh/i })).toHaveAttribute("href", "/");
+    const link = screen.getByRole("link", { name: /Gilles Heinesch/i });
+    expect(link).toHaveAttribute("href", "/");
   });
 
   it("renders nav links", () => {

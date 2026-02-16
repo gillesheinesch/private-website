@@ -22,24 +22,24 @@ export default function AboutPage() {
             alt="Gilles Heinesch"
             width={300}
             height={300}
-            className="rounded-lg object-cover"
+            className="rounded-lg border border-zinc-800 object-cover"
           />
         </div>
-        <div className="space-y-4 text-cockpit-700 dark:text-cockpit-300">
+        <div className="space-y-4 text-zinc-400">
           <p>
-            <strong className="text-cockpit-900 dark:text-cockpit-100">
+            <strong className="text-zinc-100">
               Born:
             </strong>{" "}
             Luxembourg
           </p>
           <p>
-            <strong className="text-cockpit-900 dark:text-cockpit-100">
+            <strong className="text-zinc-100">
               Work:
             </strong>{" "}
             Luxair S.A, Luxembourg
           </p>
           <p>
-            <strong className="text-cockpit-900 dark:text-cockpit-100">
+            <strong className="text-zinc-100">
               Hobbies:
             </strong>{" "}
             Running, Programming, Aviation

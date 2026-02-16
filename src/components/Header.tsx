@@ -3,8 +3,7 @@
 import { Plane, Menu, X } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
-import { ThemeToggle } from "@/components/theme-toggle";
-import { Button } from "@/components/ui/button";
+import { motion, AnimatePresence } from "framer-motion";
 
 const NAV = [
   { name: "Home", href: "/" },
@@ -16,54 +15,70 @@ const NAV = [
 export default function Header() {
   const [open, setOpen] = useState(false);
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-cockpit-200 bg-white/80 backdrop-blur dark:border-cockpit-800 dark:bg-cockpit-950/80">
-      <div className="container mx-auto flex h-14 max-w-6xl items-center justify-between px-4">
-        <Link
-          href="/"
-          className="flex items-center gap-2 font-mono text-lg font-bold tracking-wider text-sky-600 dark:text-sky-400"
-        >
-          <Plane className="h-5 w-5" />
-          GH
+    <header className="sticky top-0 z-50 w-full border-b border-zinc-800/80 bg-zinc-950/90 backdrop-blur-xl">
+      <div className="container mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
+        <Link href="/" className="group flex items-center gap-2">
+          <motion.span
+            whileHover={{ rotate: 12 }}
+            transition={{ type: "spring", stiffness: 400 }}
+            className="text-cyan-500"
+          >
+            <Plane className="h-5 w-5" />
+          </motion.span>
+          <span className="font-mono text-lg font-semibold tracking-tight text-zinc-100 transition-colors group-hover:text-cyan-400">
+            Gilles Heinesch
+          </span>
         </Link>
         <nav className="hidden items-center gap-1 md:flex">
           {NAV.map((item) => (
             <Link key={item.name} href={item.href}>
-              <Button variant="ghost" size="sm">
+              <motion.span
+                className="inline-block rounded-lg px-3 py-2 text-sm font-medium text-zinc-400 transition-colors hover:bg-zinc-800/50 hover:text-cyan-400"
+                whileHover={{ y: -1 }}
+                transition={{ duration: 0.15 }}
+              >
                 {item.name}
-              </Button>
+              </motion.span>
             </Link>
           ))}
-          <ThemeToggle />
         </nav>
-        <div className="flex items-center gap-2 md:hidden">
-          <ThemeToggle />
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-9 w-9 px-0"
+        <motion.div
+          className="flex items-center gap-2 md:hidden"
+          whileTap={{ scale: 0.98 }}
+        >
+          <button
+            className="rounded-lg p-2 text-zinc-400 hover:bg-zinc-800/50 hover:text-zinc-100"
             onClick={() => setOpen(!open)}
             aria-label="Menu"
           >
             {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </Button>
-        </div>
+          </button>
+        </motion.div>
       </div>
-      {open && (
-        <div className="border-t border-cockpit-200 bg-white dark:border-cockpit-800 dark:bg-cockpit-950 md:hidden">
-          <nav className="container mx-auto flex flex-col px-4 py-2">
-            {NAV.map((item) => (
-              <Link
-                key={item.name}
-                href={item.href}
-                onClick={() => setOpen(false)}
-                className="rounded px-4 py-2 text-sm hover:bg-cockpit-100 dark:hover:bg-cockpit-800"
-              >
-                {item.name}
-              </Link>
-            ))}
-          </nav>
-        </div>
-      )}
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.2 }}
+            className="border-t border-zinc-800 bg-zinc-950/95 md:hidden"
+          >
+            <nav className="container mx-auto flex flex-col px-4 py-3">
+              {NAV.map((item) => (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  onClick={() => setOpen(false)}
+                  className="rounded-lg px-4 py-3 text-sm font-medium text-zinc-400 transition-colors hover:bg-zinc-800/50 hover:text-cyan-400"
+                >
+                  {item.name}
+                </Link>
+              ))}
+            </nav>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </header>
   );
 }

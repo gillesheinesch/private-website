@@ -4,18 +4,7 @@
 
 /* Syntax highlighting - rehype-highlight uses highlight.js */
 .hljs {
-  @apply rounded-lg p-4 text-sm !bg-cockpit-900;
-}
-
-@layer base {
-  :root {
-    --background: 210 40% 98%;
-    --foreground: 222 47% 11%;
-  }
-  .dark {
-    --background: 222 47% 6%;
-    --foreground: 210 40% 98%;
-  }
+  @apply rounded-lg p-4 text-sm !bg-zinc-900;
 }
 
 html,
@@ -43,15 +32,15 @@ main {
   flex: 1;
 }
 
-/* Prose overrides for blog - aviation-tinged code blocks */
+/* Prose overrides for blog - dark code blocks */
 .prose pre {
-  @apply bg-cockpit-900 border border-cockpit-700 rounded-lg;
+  @apply bg-zinc-900 border border-zinc-700 rounded-lg;
 }
 
 .prose code {
-  @apply text-sky-400;
+  @apply text-cyan-400;
 }
 
 .prose :not(pre) > code {
-  @apply bg-cockpit-800 px-1.5 py-0.5 rounded text-sm;
+  @apply bg-zinc-800 px-1.5 py-0.5 rounded text-sm;
 }

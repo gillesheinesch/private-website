@@ -1,6 +1,11 @@
 import { test, expect } from "@playwright/test";
 
 test.describe("Navigation", () => {
+  test("navbar shows full name", async ({ page }) => {
+    await page.goto("/");
+    await expect(page.getByRole("link", { name: /Gilles Heinesch/i })).toBeVisible();
+  });
+
   test("all main pages are reachable", async ({ page }) => {
     await page.goto("/");
     await expect(page.getByText(/Aviation × Code/)).toBeVisible({ timeout: 5000 });
@@ -13,6 +18,12 @@ test.describe("Navigation", () => {
 
     await page.goto("/about");
     await expect(page.getByRole("heading", { level: 1 })).toContainText("About");
+  });
+
+  test("projects lists Pilotflows and RosterX", async ({ page }) => {
+    await page.goto("/projects");
+    await expect(page.getByText(/Pilotflows/)).toBeVisible();
+    await expect(page.getByText(/RosterX/)).toBeVisible();
   });
 
   test("blog links to post detail", async ({ page }) => {

@@ -13,7 +13,7 @@ export function MDXContent({ content }: { content: string }) {
         a: ({ href, children }) => (
           <a
             href={href}
-            className="text-sky-600 underline hover:text-sky-700 dark:text-sky-400 dark:hover:text-sky-300"
+            className="text-cyan-400 underline hover:text-cyan-300"
             target={href?.startsWith("http") ? "_blank" : undefined}
             rel={href?.startsWith("http") ? "noopener noreferrer" : undefined}
           >

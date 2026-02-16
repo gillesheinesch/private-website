@@ -2,7 +2,6 @@
 
 import { motion } from "framer-motion";
 
-/** Subtle contrail/aviation trail lines in the hero background */
 export function ContrailBg() {
   const trails = [
     { x: "10%", delay: 0, dur: 4 },
@@ -15,14 +14,11 @@ export function ContrailBg() {
       {trails.map((t, i) => (
         <motion.div
           key={i}
-          className="absolute top-0 h-px bg-gradient-to-r from-transparent via-sky-400/30 to-transparent"
-          style={{
-            left: t.x,
-            width: "30%",
-          }}
+          className="absolute top-0 h-px bg-gradient-to-r from-transparent via-cyan-500/20 to-transparent"
+          style={{ left: t.x, width: "30%" }}
           initial={{ opacity: 0, y: -20 }}
           animate={{
-            opacity: [0, 0.4, 0.2],
+            opacity: [0, 0.4, 0.15],
             y: [0, 100, 200],
           }}
           transition={{

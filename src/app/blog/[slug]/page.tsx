@@ -44,20 +44,20 @@ export default async function BlogPostPage({
     <article className="container mx-auto max-w-3xl px-4 py-12">
       <Link
         href="/blog"
-        className="mb-6 inline-block text-sm text-sky-600 hover:underline dark:text-sky-400"
+        className="mb-6 inline-block text-sm text-cyan-400 hover:text-cyan-300 hover:underline"
       >
         ← Back to blog
       </Link>
       <header className="mb-8">
         {post.category && (
-          <span className="text-xs font-medium uppercase tracking-wider text-cockpit-500 dark:text-cockpit-400">
+          <span className="text-xs font-medium uppercase tracking-wider text-cyan-500/80">
             {post.category}
           </span>
         )}
         <h1 className="mt-1 font-mono text-3xl font-bold tracking-tight md:text-4xl">
           {post.title}
         </h1>
-        <p className="mt-2 text-cockpit-600 dark:text-cockpit-400">
+        <p className="mt-2 text-zinc-400">
           {formatDate(post.date)}
         </p>
         {post.tags.length > 0 && (
@@ -70,7 +70,7 @@ export default async function BlogPostPage({
           </div>
         )}
       </header>
-      <div className="prose prose-cockpit dark:prose-invert prose-pre:bg-cockpit-900 prose-code:text-sky-400 max-w-none">
+      <div className="prose prose-invert prose-zinc max-w-none prose-headings:text-zinc-100 prose-p:text-zinc-300 prose-pre:bg-zinc-900 prose-code:text-cyan-400 prose-a:text-cyan-400">
         <MDXContent content={post.content} />
       </div>
     </article>

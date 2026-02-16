@@ -1,6 +1,5 @@
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
-import { ThemeProvider } from "@/components/theme-provider";
 import "@/styles/globals.css";
 import { GeistSans } from "geist/font/sans";
 import { GeistMono } from "geist/font/mono";
@@ -26,22 +25,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" className="dark" suppressHydrationWarning>
       <body
-        className={`${GeistSans.variable} ${GeistMono.variable} bg-white font-sans text-cockpit-900 antialiased dark:bg-cockpit-950 dark:text-cockpit-100`}
+        className={`${GeistSans.variable} ${GeistMono.variable} min-h-screen bg-zinc-950 font-sans text-zinc-100 antialiased`}
       >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <div className="content">
-            <Header />
-            <main>{children}</main>
-            <Footer />
-          </div>
-        </ThemeProvider>
+        <div className="content">
+          <Header />
+          <main>{children}</main>
+          <Footer />
+        </div>
       </body>
     </html>
   );
