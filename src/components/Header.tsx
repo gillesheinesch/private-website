@@ -1,147 +1,77 @@
 "use client";
-import * as React from "react";
-import AppBar from "@mui/material/AppBar";
-import Box from "@mui/material/Box";
-import Toolbar from "@mui/material/Toolbar";
-import IconButton from "@mui/material/IconButton";
-import Typography from "@mui/material/Typography";
-import Menu from "@mui/material/Menu";
-import MenuIcon from "@mui/icons-material/Menu";
-import Container from "@mui/material/Container";
-import Button from "@mui/material/Button";
-import MenuItem from "@mui/material/MenuItem";
-import Link from "next/link";
 
-const pages = [
-    {
-        name: "Home",
-        href: "/",
-    },
-    {
-        name: "Projects",
-        href: "/projects",
-    },
-    {
-        name: "Blog",
-        href: "/blog",
-    },
-    {
-        name: "About",
-        href: "/about",
-    },
+import { Menu, X } from "lucide-react";
+import Link from "next/link";
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+
+const NAV = [
+  { name: "Home", href: "/" },
+  { name: "Projects", href: "/projects" },
+  { name: "Blog", href: "/blog" },
+  { name: "About", href: "/about" },
 ];
 
-function ResponsiveAppBar() {
-    const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
-
-    const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
-        setAnchorElNav(event.currentTarget);
-    };
-
-    const handleCloseNavMenu = () => {
-        setAnchorElNav(null);
-    };
-
-    return (
-        <AppBar position="static">
-            <Container maxWidth="xl">
-                <Toolbar disableGutters>
-                    <Typography
-                        variant="h6"
-                        noWrap
-                        component="a"
-                        href="/"
-                        sx={{
-                            mr: 2,
-                            display: { xs: "none", md: "flex" },
-                            fontFamily: "monospace",
-                            fontWeight: 700,
-                            letterSpacing: ".3rem",
-                            color: "inherit",
-                            textDecoration: "none",
-                        }}
-                    >
-                        GH
-                    </Typography>
-
-                    <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
-                        <IconButton
-                            size="large"
-                            aria-label="account of current user"
-                            aria-controls="menu-appbar"
-                            aria-haspopup="true"
-                            onClick={handleOpenNavMenu}
-                            color="inherit"
-                        >
-                            <MenuIcon />
-                        </IconButton>
-                        <Menu
-                            id="menu-appbar"
-                            anchorEl={anchorElNav}
-                            anchorOrigin={{
-                                vertical: "bottom",
-                                horizontal: "left",
-                            }}
-                            keepMounted
-                            transformOrigin={{
-                                vertical: "top",
-                                horizontal: "left",
-                            }}
-                            open={Boolean(anchorElNav)}
-                            onClose={handleCloseNavMenu}
-                            sx={{ display: { xs: "block", md: "none" } }}
-                        >
-                            {pages.map((page) => (
-                                <Link key={page.name} href={page.href} passHref>
-                                    <MenuItem onClick={handleCloseNavMenu}>
-                                        <Typography textAlign="center">{page.name}</Typography>
-                                    </MenuItem>
-                                </Link>
-                            ))}
-                        </Menu>
-                    </Box>
-                    <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" }, justifyContent: "center" }}>
-                        {" "}
-                        <Typography
-                            variant="h5"
-                            noWrap
-                            component="a"
-                            href="/"
-                            sx={{
-                                mr: 2,
-                                display: { xs: "flex", md: "none" },
-                                flexGrow: 1,
-                                fontFamily: "monospace",
-                                fontWeight: 700,
-                                letterSpacing: ".3rem",
-                                color: "inherit",
-                                textDecoration: "none",
-                            }}
-                        >
-                            GH
-                        </Typography>
-                    </Box>
-                    <Box sx={{ display: { xs: "none", md: "flex" }, flexGrow: 1 }}></Box>
-                    <Box sx={{ display: { xs: "none", md: "flex" }, alignContent: "end" }}>
-                        {pages.map((page) => (
-                            <Link
-                                key={page.name}
-                                href={page.href}
-                                passHref
-                                style={{
-                                    textDecoration: "none",
-                                }}
-                            >
-                                <Button onClick={handleCloseNavMenu} sx={{ my: 2, color: "white", display: "block" }}>
-                                    {page.name}
-                                </Button>
-                            </Link>
-                        ))}
-                    </Box>
-                </Toolbar>
-            </Container>
-        </AppBar>
-    );
+export default function Header() {
+  const [open, setOpen] = useState(false);
+  return (
+    <header className="sticky top-0 z-50 w-full border-b border-zinc-800/80 bg-zinc-950/90 backdrop-blur-xl">
+      <div className="container mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
+        <Link href="/" className="group flex items-center">
+          <span className="font-mono text-lg font-semibold tracking-tight text-zinc-100 transition-colors group-hover:text-cyan-400">
+            Gilles Heinesch
+          </span>
+        </Link>
+        <nav className="hidden items-center gap-1 md:flex">
+          {NAV.map((item) => (
+            <Link key={item.name} href={item.href}>
+              <motion.span
+                className="inline-block rounded-lg px-3 py-2 text-sm font-medium text-zinc-400 transition-colors hover:bg-zinc-800/50 hover:text-cyan-400"
+                whileHover={{ y: -1 }}
+                transition={{ duration: 0.15 }}
+              >
+                {item.name}
+              </motion.span>
+            </Link>
+          ))}
+        </nav>
+        <motion.div
+          className="flex items-center gap-2 md:hidden"
+          whileTap={{ scale: 0.98 }}
+        >
+          <button
+            className="rounded-lg p-2 text-zinc-400 hover:bg-zinc-800/50 hover:text-zinc-100"
+            onClick={() => setOpen(!open)}
+            aria-label="Menu"
+          >
+            {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
+        </motion.div>
+      </div>
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.2 }}
+            className="border-t border-zinc-800 bg-zinc-950/95 md:hidden"
+          >
+            <nav className="container mx-auto flex flex-col px-4 py-3">
+              {NAV.map((item) => (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  onClick={() => setOpen(false)}
+                  className="rounded-lg px-4 py-3 text-sm font-medium text-zinc-400 transition-colors hover:bg-zinc-800/50 hover:text-cyan-400"
+                >
+                  {item.name}
+                </Link>
+              ))}
+            </nav>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </header>
+  );
 }
-
-export default ResponsiveAppBar;
