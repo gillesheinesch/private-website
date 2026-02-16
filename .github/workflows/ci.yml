@@ -1,0 +1,50 @@
+# CI - Lint, typecheck, test, build
+name: CI
+
+concurrency:
+    group: ci-${{ github.ref }}
+    cancel-in-progress: true
+
+on:
+    pull_request:
+        types: [opened, reopened, synchronize]
+        branches: [master, dev]
+    push:
+        branches: [master, dev]
+    workflow_dispatch:
+
+jobs:
+    validate:
+        # Skip when PR is still in draft
+        if: github.event_name != 'pull_request' || !github.event.pull_request.draft
+        name: Validate Private Website
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version-file: ".nvmrc"
+                  cache: "npm"
+                  cache-dependency-path: package-lock.json
+
+            - name: Install dependencies
+              run: npm ci
+
+            - name: Security audit
+              run: npm audit --audit-level=moderate
+
+            - name: Lint
+              run: npm run lint
+
+            - name: TypeScript check
+              run: npm run typecheck
+
+            - name: Unit & integration tests
+              run: npm test
+
+            - name: Build
+              run: npm run build

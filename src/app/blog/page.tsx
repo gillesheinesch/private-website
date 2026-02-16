@@ -1,85 +1,86 @@
-import { Grid2, Box, Button, Card, CardActions, CardContent, CardMedia, Chip, Container, Typography } from "@mui/material";
-import matter from 'gray-matter';
-import fs from 'fs';
-import path from 'path';
-import moment from "moment"
+import { Calendar, ArrowRight } from "lucide-react";
 import Link from "next/link";
+import { getAllPosts } from "@/lib/blog";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import { formatDate } from "@/lib/date";
 
-export default function Blog() {
-    const blogDirectory = path.join(process.cwd(), 'blog');
-    const filenames = fs.readdirSync(blogDirectory);
+export const metadata = {
+  title: "Blog",
+  description:
+    "Articles and thoughts on web development, aviation, and more by Gilles Heinesch.",
+};
 
-    const blogs = filenames.map((filename) => {
-        const filePath = path.join(blogDirectory, filename);
-        const fileContent = fs.readFileSync(filePath, 'utf8');
-        const { data, content } = matter(fileContent);
+export default function BlogPage() {
+  const posts = getAllPosts();
 
-        return {
-            title: data.title,
-            description: data.description,
-            category: data.category,
-            thumbnail: data.thumbnail,
-            date: data.date,
-            tags: data.tags,
-            content: content,
-        };
-    });
+  return (
+    <div className="container mx-auto max-w-4xl px-4 py-12">
+      <header className="mb-12">
+        <h1 className="font-mono text-3xl font-bold tracking-tight md:text-4xl">
+          Blog
+        </h1>
+        <p className="mt-2 text-zinc-400">
+          Articles and thoughts on web development, aviation, and more.
+        </p>
+      </header>
 
-    blogs.sort((a, b) => moment(b.date).diff(moment(a.date)));
+      <BlogListInner posts={posts} />
+    </div>
+  );
+}
 
-    return (
-        <Container maxWidth="lg" sx={{ mt: 8 }}>
-            <Typography variant="h3" component="h1" gutterBottom>
-                Blog
-            </Typography>
-
-            <Grid2 container spacing={4}>
-                {blogs.map((blog) => (
-                    <Grid2 size={
-                        {
-                            xs: 12,
-                            sm: 6
-                        }
-                    } key={blog.title}>
-                        <Card>
-                            <CardMedia
-                                component="img"
-                                height="140"
-                                image={blog.thumbnail}
-                                alt={blog.title}
-                            />
-                            <CardContent>
-                                <Typography variant="body2" color="text.secondary" sx={{ textTransform: 'uppercase' }}>
-                                    {blog.category}
-                                </Typography>
-                                <Link href={`/blog/${encodeURIComponent(blog.title)}`} passHref style={{ textDecoration: 'none', color: 'inherit'}}>
-                                <Typography variant="h5" component="div">
-                                        {blog.title}
-                                </Typography>
-                                </Link>
-                                <Typography variant="body2" color="text.secondary">
-                                    {blog.description}
-                                </Typography>
-                                <Typography variant="body2" color="text.secondary">
-                                    {moment(blog.date).format('DD.MM.YYYY')}
-                                </Typography>
-                                <Box sx={{ mt: 2 }}>
-                                    {blog.tags.map((tag: string) => (
-                                        <Chip key={tag} label={tag} sx={{ mr: 1 }} />
-                                    ))}
-                                </Box>
-                            </CardContent>
-                            <CardActions>
-                            <Link href={`/blog/${encodeURIComponent(blog.title)}`} passHref>
-                                <Button size="small">
-                                    Read More
-                                </Button>
-                            </Link>
-                            </CardActions>
-                        </Card>
-                    </Grid2>
-                ))}
-            </Grid2>
-        </Container>
-    );
+function BlogListInner({ posts }: { posts: ReturnType<typeof getAllPosts> }) {
+  if (posts.length === 0) return <p className="text-zinc-500">No posts yet.</p>;
+  return (
+    <div className="space-y-6">
+      {posts.map((post) => (
+        <Link key={post.slug} href={`/blog/${post.slug}`}>
+                <Card className="transition-all duration-300 hover:border-cyan-500/30 hover:shadow-lg hover:shadow-cyan-500/5">
+                  <CardContent className="p-6">
+                    {post.thumbnail && (
+                      <div className="relative mb-4 h-40 overflow-hidden rounded-lg">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={post.thumbnail}
+                          alt=""
+                          className="h-full w-full object-cover"
+                        />
+                      </div>
+                    )}
+                    {post.category && (
+                      <span className="text-xs font-medium uppercase tracking-wider text-cyan-500/80">
+                        {post.category}
+                      </span>
+                    )}
+                    <h2 className="mt-1 font-mono text-xl font-semibold text-zinc-100">
+                      {post.title}
+                    </h2>
+                    <p className="mt-2 text-sm text-zinc-400">
+                      {post.description}
+                    </p>
+                    <div className="mt-3 flex flex-wrap items-center gap-2 text-sm">
+                      <span className="flex items-center gap-1 text-zinc-500">
+                        <Calendar className="h-3.5 w-3.5" />
+                        {formatDate(post.date)}
+                      </span>
+                      {post.tags.length > 0 && (
+                        <span className="flex gap-1">
+                          {post.tags.map((tag) => (
+                            <Badge key={tag} variant="secondary" className="text-xs">
+                              {tag}
+                            </Badge>
+                          ))}
+                        </span>
+                      )}
+                    </div>
+                    <span className="mt-2 inline-flex items-center gap-1 text-cyan-400">
+                      Read more <ArrowRight className="h-4 w-4" />
+                    </span>
+                  </CardContent>
+                </Card>
+              </Link>
+      ))}
+    </div>
+  );
 }
