@@ -14,6 +14,13 @@ test.describe("Home page", () => {
     await expect(page.getByRole("link", { name: /about/i }).first()).toBeVisible();
   });
 
+  test("terminal shows projects from data", async ({ page }) => {
+    await page.goto("/");
+    await expect(page.getByText(/cat projects\.txt/)).toBeVisible();
+    await expect(page.getByText(/Pilotflows/)).toBeVisible();
+    await expect(page.getByText(/RosterX/)).toBeVisible();
+  });
+
   test("navigates to projects", async ({ page }) => {
     await page.goto("/");
     await page.getByRole("link", { name: /projects/i }).first().click();

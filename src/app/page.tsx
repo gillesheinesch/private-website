@@ -5,8 +5,9 @@ import { Plane, Code2, FileText, User } from "lucide-react";
 import Link from "next/link";
 import { TypingHero } from "@/components/landing/typing-hero";
 import { ContrailBg } from "@/components/landing/contrail-bg";
+import { FlightLogTerminal } from "@/components/landing/flight-log-terminal";
+import { CockpitGrid } from "@/components/landing/cockpit-grid";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 
 const LINKS = [
   { href: "/projects", label: "Projects", icon: Code2 },
@@ -16,7 +17,8 @@ const LINKS = [
 
 export default function Home() {
   return (
-    <div className="relative min-h-[calc(100vh-8rem)]">
+    <div className="landing-noise relative min-h-[calc(100vh-8rem)] overflow-hidden">
+      <CockpitGrid />
       <ContrailBg />
 
       {/* Hero */}
@@ -70,49 +72,9 @@ export default function Home() {
         </motion.div>
       </section>
 
-      {/* Terminal-style teaser */}
+      {/* Terminal — auto-synced from projects data */}
       <section className="relative px-4 pb-24">
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-          className="container mx-auto max-w-4xl"
-        >
-          <Card className="overflow-hidden border-zinc-800 bg-zinc-900/60">
-            <div className="flex items-center gap-2 border-b border-zinc-800 bg-zinc-900 px-4 py-2">
-              <span className="h-2 w-2 rounded-full bg-red-500/80" />
-              <span className="h-2 w-2 rounded-full bg-amber-500/80" />
-              <span className="h-2 w-2 rounded-full bg-emerald-500/80" />
-              <span className="ml-2 font-mono text-xs text-zinc-500">
-                flight-log --recent
-              </span>
-            </div>
-            <CardContent className="p-4 font-mono text-sm">
-              <div className="space-y-1 text-zinc-400">
-                <p>
-                  <span className="text-cyan-400">$</span> cat projects.txt
-                </p>
-                <p>
-                  <span className="text-emerald-400">Pilotflows</span> · Aviation
-                  management platform
-                </p>
-                <p>
-                  <span className="text-emerald-400">FrëschKëscht</span> ·
-                  Luxembourgish gift boxes
-                </p>
-                <p>
-                  <span className="text-emerald-400">RosterX</span> · Flight crew
-                  calendar parser
-                </p>
-                <p>
-                  <span className="text-cyan-400">$</span>{" "}
-                  <span className="animate-pulse">_</span>
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
+        <FlightLogTerminal />
       </section>
     </div>
   );
