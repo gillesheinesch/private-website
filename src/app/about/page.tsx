@@ -62,7 +62,7 @@ export default function AboutPage() {
         <div className="space-y-6">
           {experience.map((job, i) => (
             <motion.div
-              key={`${job.company}-${job.role}`}
+              key={`${job.company}-${job.role}-${i}`}
               initial={{ opacity: 0, x: -12 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
@@ -89,13 +89,25 @@ export default function AboutPage() {
                     </span>
                   )}
                 </div>
-                {job.period && (
-                  <span className="text-sm text-zinc-500">{job.period}</span>
-                )}
+                <div className="flex flex-col items-end gap-0.5 text-sm text-zinc-500">
+                  {job.period && <span>{job.period}</span>}
+                  {job.employment && (
+                    <span className="text-xs">{job.employment}</span>
+                  )}
+                </div>
               </div>
-              <p className="mt-2 text-sm leading-relaxed text-zinc-400">
-                {job.description}
-              </p>
+              {(job.location || job.description) && (
+                <div className="mt-2 space-y-1">
+                  {job.location && (
+                    <p className="text-xs text-zinc-500">{job.location}</p>
+                  )}
+                  {job.description && (
+                    <p className="text-sm leading-relaxed text-zinc-400">
+                      {job.description}
+                    </p>
+                  )}
+                </div>
+              )}
             </motion.div>
           ))}
         </div>

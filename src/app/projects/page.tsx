@@ -34,9 +34,16 @@ export default function ProjectsPage() {
           >
             <Card className="group flex h-full flex-col border-zinc-800 bg-zinc-900/50 transition-all duration-300 hover:border-cyan-500/30 hover:shadow-lg hover:shadow-cyan-500/5">
               <CardContent className="flex flex-1 flex-col p-6">
-                <span className="text-xs font-medium uppercase tracking-wider text-cyan-500/80">
-                  {project.position}
-                </span>
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <span className="text-xs font-medium uppercase tracking-wider text-cyan-500/80">
+                    {project.position}
+                  </span>
+                  {project.period && (
+                    <span className="text-xs text-zinc-500">
+                      {project.period}
+                    </span>
+                  )}
+                </div>
                 <h2 className="mt-1 font-mono text-xl font-semibold text-zinc-100">
                   {project.title}
                 </h2>
