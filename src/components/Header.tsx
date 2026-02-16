@@ -1,6 +1,6 @@
 "use client";
 
-import { Plane, Menu, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -17,14 +17,7 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-zinc-800/80 bg-zinc-950/90 backdrop-blur-xl">
       <div className="container mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
-        <Link href="/" className="group flex items-center gap-2">
-          <motion.span
-            whileHover={{ rotate: 12 }}
-            transition={{ type: "spring", stiffness: 400 }}
-            className="text-cyan-500"
-          >
-            <Plane className="h-5 w-5" />
-          </motion.span>
+        <Link href="/" className="group flex items-center">
           <span className="font-mono text-lg font-semibold tracking-tight text-zinc-100 transition-colors group-hover:text-cyan-400">
             Gilles Heinesch
           </span>
