@@ -9,7 +9,11 @@ import { cn } from "@/lib/utils";
 export function ThemeToggle({ className }: { className?: string }) {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
+  // Mounted check required for next-themes to avoid hydration mismatch
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- required for SSR
+    setMounted(true);
+  }, []);
   if (!mounted) return null;
   return (
     <Button
