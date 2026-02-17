@@ -23,14 +23,19 @@ describe("Blog post detail page (integration)", () => {
     });
 
     it("renders markdown content", async () => {
-        const { getAllSlugs } = require("@/lib/blog");
+        const { getAllSlugs, getPostBySlug } = require("@/lib/blog");
         const slugs = getAllSlugs();
         const slug = slugs[0]!;
+        const post = getPostBySlug(slug);
+        expect(post).not.toBeNull();
+        // Pick a phrase from the post body that the mock will render (e.g. first heading or paragraph)
+        const firstMeaningfulLine = post!.content.trim().split("\n").find((l: string) => l.trim().length > 5);
+        expect(firstMeaningfulLine).toBeDefined();
+        const searchText = firstMeaningfulLine!.replace(/^#+\s*/, "").trim().slice(0, 30);
         const element = await BlogPostPage({
             params: Promise.resolve({ slug }),
         });
         render(element);
-        // Mock renders markdown as paragraphs; content includes "Test Blog Article"
-        expect(screen.getAllByText(/Test Blog Article/).length).toBeGreaterThan(0);
+        expect(screen.getAllByText(new RegExp(searchText, "i")).length).toBeGreaterThan(0);
     });
 });

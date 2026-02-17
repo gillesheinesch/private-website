@@ -110,9 +110,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                     )}
                     {/* Lead paragraph — description in larger, lighter text */}
                     {post.description && (
-                        <p className="mt-4 text-lg leading-relaxed text-zinc-400">
-                            {post.description}
-                        </p>
+                        <p className="mt-4 text-lg leading-relaxed text-zinc-400">{post.description}</p>
                     )}
                 </header>
                 <div className="prose prose-invert prose-zinc prose-lg max-w-none prose-headings:text-zinc-100 prose-p:text-zinc-300 prose-pre:bg-zinc-900 prose-code:text-cyan-400 prose-a:text-cyan-400 prose-img:rounded-lg prose-p:leading-relaxed">
