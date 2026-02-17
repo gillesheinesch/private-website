@@ -31,11 +31,7 @@ const personSchema = {
     sameAs: [profile.linkedin],
 };
 
-export default function AboutLayout({
-    children,
-}: {
-    children: React.ReactNode;
-}) {
+export default function AboutLayout({ children }: { children: React.ReactNode }) {
     return (
         <>
             <JsonLd data={personSchema} />

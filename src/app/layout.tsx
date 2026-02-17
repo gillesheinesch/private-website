@@ -6,8 +6,7 @@ import { GeistSans } from "geist/font/sans";
 import type { Metadata, Viewport } from "next";
 
 /** Base URL for absolute OG/Twitter links — use NEXT_PUBLIC_SITE_URL or fallback */
-const BASE_URL =
-    process.env.NEXT_PUBLIC_SITE_URL || "https://heinesch.com";
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://heinesch.com";
 
 export const metadata: Metadata = {
     metadataBase: new URL(BASE_URL),

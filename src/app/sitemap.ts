@@ -2,8 +2,7 @@ import { getAllPosts } from "@/lib/blog";
 import type { MetadataRoute } from "next";
 
 /** Base URL for sitemap — use env or fallback to production */
-const BASE_URL =
-    process.env.NEXT_PUBLIC_SITE_URL || "https://heinesch.com";
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://heinesch.com";
 
 /**
  * Generate sitemap.xml for SEO — static pages + dynamic blog posts
