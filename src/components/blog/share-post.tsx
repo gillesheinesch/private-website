@@ -35,7 +35,6 @@ function ShareLink({
 export function SharePost({ url, title, description }: SharePostProps) {
     const fullUrl = url.startsWith("http") ? url : `https://heinesch.com${url}`;
     const encodedUrl = encodeURIComponent(fullUrl);
-    const encodedTitle = encodeURIComponent(title);
     const encodedText = encodeURIComponent(description ? `${title} — ${description}` : title);
 
     const twitterHref = `https://twitter.com/intent/tweet?text=${encodedText}&url=${encodedUrl}`;

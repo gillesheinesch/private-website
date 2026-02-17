@@ -16,7 +16,7 @@ const blogComponents: Components = {
             {children}
         </a>
     ),
-    h2: ({ node, children, ...props }) => (
+    h2: ({ _node, children, ...props }) => (
         <h2
             {...props}
             className="mt-12 mb-4 border-l-4 border-cyan-500 pl-4 font-mono text-xl font-bold text-zinc-100 sm:text-2xl"
@@ -24,12 +24,12 @@ const blogComponents: Components = {
             {children}
         </h2>
     ),
-    h3: ({ node, children, ...props }) => (
+    h3: ({ _node, children, ...props }) => (
         <h3 {...props} className="mt-8 mb-3 font-mono text-lg font-semibold text-zinc-200 sm:text-xl">
             {children}
         </h3>
     ),
-    blockquote: ({ node, children, ...props }) => (
+    blockquote: ({ _node, children, ...props }) => (
         <blockquote
             {...props}
             className="my-6 border-l-4 border-cyan-500 bg-cyan-500/5 py-2 pl-4 pr-4 italic text-zinc-300"
@@ -37,12 +37,12 @@ const blogComponents: Components = {
             {children}
         </blockquote>
     ),
-    ul: ({ node, children, ...props }) => (
+    ul: ({ _node, children, ...props }) => (
         <ul {...props} className="my-4 space-y-2 pl-6 [&>li]:marker:text-cyan-500/80">
             {children}
         </ul>
     ),
-    ol: ({ node, children, ...props }) => (
+    ol: ({ _node, children, ...props }) => (
         <ol
             {...props}
             className="my-4 list-decimal space-y-2 pl-6 [&>li]:marker:font-medium [&>li]:marker:text-cyan-500/80"
@@ -57,7 +57,7 @@ const blogComponents: Components = {
             aria-hidden
         />
     ),
-    strong: ({ node, children, ...props }) => (
+    strong: ({ _node, children, ...props }) => (
         <strong {...props} className="font-semibold text-cyan-300/90">
             {children}
         </strong>
