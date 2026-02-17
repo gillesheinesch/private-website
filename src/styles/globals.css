@@ -2,6 +2,24 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Responsive container padding - comfortable on all screen sizes */
+@layer utilities {
+  .container-padding {
+    @apply px-4 sm:px-6 lg:px-8;
+  }
+}
+
+/* Smooth scroll for anchor links */
+html {
+  scroll-behavior: smooth;
+}
+
+
+/* Focus visible - keyboard users only */
+:focus-visible {
+  @apply outline-2 outline-offset-2 outline-cyan-500;
+}
+
 /* Syntax highlighting - rehype-highlight uses highlight.js */
 .hljs {
   @apply rounded-lg p-4 text-sm !bg-zinc-900;

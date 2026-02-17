@@ -10,7 +10,7 @@ const LINES = [
 
 export function TypingHero() {
   return (
-    <div className="font-mono text-lg leading-relaxed text-zinc-200 md:text-xl">
+    <div className="font-mono text-base leading-relaxed text-zinc-200 sm:text-lg md:text-xl">
       {LINES.map((line, i) => (
         <motion.div
           key={i}

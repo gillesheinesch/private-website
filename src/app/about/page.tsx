@@ -8,25 +8,25 @@ import { profile, experience, skills, interests } from "@/data/about";
 
 export default function AboutPage() {
   return (
-    <div className="container mx-auto max-w-4xl px-4 py-12">
+    <div className="container mx-auto max-w-4xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
       {/* Hero */}
       <motion.section
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="mb-16 flex flex-col gap-8 md:flex-row md:items-start"
+        className="mb-12 flex flex-col gap-6 sm:gap-8 md:flex-row md:items-start"
       >
-        <div className="shrink-0">
+        <div className="shrink-0 mx-auto md:mx-0">
           <Image
             src="/images/gillesheinesch.png"
             alt={profile.name}
             width={220}
             height={220}
-            className="rounded-2xl border border-zinc-800 object-cover shadow-xl"
+            className="rounded-2xl border border-zinc-800 object-cover shadow-xl w-40 h-40 sm:w-52 sm:h-52 md:w-[220px] md:h-[220px]"
           />
         </div>
         <div className="flex-1">
-          <h1 className="font-mono text-3xl font-bold tracking-tight text-zinc-100 md:text-4xl">
+          <h1 className="font-mono text-2xl font-bold tracking-tight text-zinc-100 sm:text-3xl md:text-4xl">
             {profile.name}
           </h1>
           <p className="mt-2 text-lg text-cyan-400">{profile.tagline}</p>
@@ -67,7 +67,7 @@ export default function AboutPage() {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.05 }}
-              className="group rounded-xl border border-zinc-800 bg-zinc-900/30 p-5 transition-colors hover:border-cyan-500/20"
+              className="group rounded-xl border border-zinc-800 bg-zinc-900/30 p-4 transition-colors hover:border-cyan-500/20 sm:p-5"
             >
               <div className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between">
                 <div>
@@ -121,7 +121,7 @@ export default function AboutPage() {
         transition={{ duration: 0.5 }}
         className="grid gap-8 md:grid-cols-2"
       >
-        <div className="rounded-xl border border-zinc-800 bg-zinc-900/30 p-6">
+        <div className="rounded-xl border border-zinc-800 bg-zinc-900/30 p-4 sm:p-6">
           <div className="mb-4 flex items-center gap-2">
             <Code2 className="h-5 w-5 text-cyan-500" />
             <h3 className="font-mono font-semibold text-zinc-100">Skills</h3>
@@ -137,7 +137,7 @@ export default function AboutPage() {
             ))}
           </div>
         </div>
-        <div className="rounded-xl border border-zinc-800 bg-zinc-900/30 p-6">
+        <div className="rounded-xl border border-zinc-800 bg-zinc-900/30 p-4 sm:p-6">
           <div className="mb-4 flex items-center gap-2">
             <Plane className="h-5 w-5 text-cyan-500" />
             <h3 className="font-mono font-semibold text-zinc-100">Interests</h3>

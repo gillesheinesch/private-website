@@ -9,14 +9,14 @@ import { projects } from "@/data/projects";
 
 export default function ProjectsPage() {
   return (
-    <div className="container mx-auto max-w-4xl px-4 py-12">
+    <div className="container mx-auto max-w-4xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
       <motion.header
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
-        className="mb-12"
+        className="mb-8 sm:mb-12"
       >
-        <h1 className="font-mono text-3xl font-bold tracking-tight text-zinc-100 md:text-4xl">
+        <h1 className="font-mono text-2xl font-bold tracking-tight text-zinc-100 sm:text-3xl md:text-4xl">
           Projects
         </h1>
         <p className="mt-2 text-zinc-400">
@@ -24,7 +24,7 @@ export default function ProjectsPage() {
         </p>
       </motion.header>
 
-      <div className="grid gap-6 sm:grid-cols-2">
+      <div className="grid gap-4 sm:gap-6 sm:grid-cols-2">
         {projects.map((project, i) => (
           <motion.div
             key={project.title}
@@ -33,7 +33,7 @@ export default function ProjectsPage() {
             transition={{ delay: i * 0.05, duration: 0.4 }}
           >
             <Card className="group flex h-full flex-col border-zinc-800 bg-zinc-900/50 transition-all duration-300 hover:border-cyan-500/30 hover:shadow-lg hover:shadow-cyan-500/5">
-              <CardContent className="flex flex-1 flex-col p-6">
+              <CardContent className="flex flex-1 flex-col p-4 sm:p-6">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <span className="text-xs font-medium uppercase tracking-wider text-cyan-500/80">
                     {project.position}

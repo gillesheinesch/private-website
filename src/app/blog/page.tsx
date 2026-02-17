@@ -15,9 +15,9 @@ export default function BlogPage() {
   const posts = getAllPosts();
 
   return (
-    <div className="container mx-auto max-w-4xl px-4 py-12">
-      <header className="mb-12">
-        <h1 className="font-mono text-3xl font-bold tracking-tight md:text-4xl">
+    <div className="container mx-auto max-w-4xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
+      <header className="mb-8 sm:mb-12">
+        <h1 className="font-mono text-2xl font-bold tracking-tight sm:text-3xl md:text-4xl">
           Blog
         </h1>
         <p className="mt-2 text-zinc-400">
@@ -35,11 +35,15 @@ function BlogListInner({ posts }: { posts: ReturnType<typeof getAllPosts> }) {
   return (
     <div className="space-y-6">
       {posts.map((post) => (
-        <Link key={post.slug} href={`/blog/${post.slug}`}>
+        <Link
+          key={post.slug}
+          href={`/blog/${post.slug}`}
+          className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 rounded-xl"
+        >
                 <Card className="transition-all duration-300 hover:border-cyan-500/30 hover:shadow-lg hover:shadow-cyan-500/5">
-                  <CardContent className="p-6">
+                  <CardContent className="p-4 sm:p-6">
                     {post.thumbnail && (
-                      <div className="relative mb-4 h-40 overflow-hidden rounded-lg">
+                      <div className="relative mb-4 h-32 overflow-hidden rounded-lg sm:h-40">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src={post.thumbnail}

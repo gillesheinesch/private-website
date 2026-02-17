@@ -41,10 +41,10 @@ export default async function BlogPostPage({
   if (!post) notFound();
 
   return (
-    <article className="container mx-auto max-w-3xl px-4 py-12">
+    <article className="container mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
       <Link
         href="/blog"
-        className="mb-6 inline-block text-sm text-cyan-400 hover:text-cyan-300 hover:underline"
+        className="mb-6 inline-flex min-h-[44px] items-center text-sm text-cyan-400 transition-colors hover:text-cyan-300 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 rounded-md pr-2"
       >
         ← Back to blog
       </Link>
@@ -54,7 +54,7 @@ export default async function BlogPostPage({
             {post.category}
           </span>
         )}
-        <h1 className="mt-1 font-mono text-3xl font-bold tracking-tight md:text-4xl">
+        <h1 className="mt-1 font-mono text-2xl font-bold tracking-tight sm:text-3xl md:text-4xl">
           {post.title}
         </h1>
         <p className="mt-2 text-zinc-400">
@@ -70,7 +70,7 @@ export default async function BlogPostPage({
           </div>
         )}
       </header>
-      <div className="prose prose-invert prose-zinc max-w-none prose-headings:text-zinc-100 prose-p:text-zinc-300 prose-pre:bg-zinc-900 prose-code:text-cyan-400 prose-a:text-cyan-400">
+      <div className="prose prose-invert prose-zinc max-w-none prose-headings:text-zinc-100 prose-p:text-zinc-300 prose-pre:bg-zinc-900 prose-code:text-cyan-400 prose-a:text-cyan-400 prose-img:rounded-lg prose-p:leading-relaxed">
         <MDXContent content={post.content} />
       </div>
     </article>

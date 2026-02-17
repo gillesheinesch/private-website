@@ -22,7 +22,7 @@ export default function Home() {
       <ContrailBg />
 
       {/* Hero */}
-      <section className="relative flex min-h-[70vh] flex-col items-center justify-center px-4 py-16">
+      <section className="relative flex min-h-[70vh] flex-col items-center justify-center px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -39,7 +39,7 @@ export default function Home() {
             Aviation × Code
           </motion.div>
           <TypingHero />
-          <p className="mt-6 max-w-md font-sans text-base text-zinc-400">
+          <p className="mt-4 max-w-md text-center font-sans text-sm text-zinc-400 sm:mt-6 sm:text-base">
             I build things for the web and love everything that flies. Explore
             my projects, read the blog, or say hi.
           </p>
@@ -47,7 +47,7 @@ export default function Home() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 1.2 }}
-            className="mt-8 flex flex-wrap justify-center gap-3"
+            className="mt-6 flex flex-wrap justify-center gap-3 sm:mt-8 sm:gap-4"
           >
             {LINKS.map((link, i) => (
               <motion.div
@@ -73,7 +73,7 @@ export default function Home() {
       </section>
 
       {/* Terminal — auto-synced from projects data */}
-      <section className="relative px-4 pb-24">
+      <section className="relative px-4 pb-16 sm:px-6 sm:pb-24 lg:px-8">
         <FlightLogTerminal />
       </section>
     </div>
