@@ -52,7 +52,8 @@
     "jest": "^30.4.2",
     "jest-environment-jsdom": "^30.4.1",
     "tailwindcss": "^4.3.0",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.59.3"
   },
   "peerDependencies": {
     "react": "^18.3.1",
