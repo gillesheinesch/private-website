@@ -4,7 +4,8 @@ FROM node:22-alpine AS builder
 WORKDIR /app
 
 # Copy package manifests for dependency installation (pnpm uses pnpm-lock.yaml)
-COPY package.json pnpm-lock.yaml .npmrc ./
+# pnpm-workspace.yaml carries allowBuilds + overrides; omitting it breaks frozen-lockfile (config mismatch).
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
 RUN corepack enable && corepack prepare pnpm@11.1.1 --activate
 RUN pnpm install --frozen-lockfile
 
@@ -22,7 +23,7 @@ RUN apk add --no-cache curl
 
 WORKDIR /app
 
-COPY package.json pnpm-lock.yaml .npmrc ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
 
 # Create non-root user for security before copying files
 RUN addgroup -g 1001 -S nodejs && \

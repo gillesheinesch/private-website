@@ -11,7 +11,7 @@ const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://heinesch.com";
 export const metadata: Metadata = {
     metadataBase: new URL(BASE_URL),
     title: {
-        default: "Gilles Heinesch | Aviation × Web Developer",
+        default: "Gilles Heinesch",
         template: "%s | Gilles Heinesch",
     },
     description:
