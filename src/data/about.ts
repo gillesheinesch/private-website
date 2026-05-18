@@ -5,20 +5,29 @@
 
 export const profile = {
   name: "Gilles Heinesch",
-  tagline: "First Officer Q400 · Co-Founder · Aviation × Tech",
+  tagline: "First Officer B737 · Co-Founder",
   location: "Luxembourg",
-  bio: "First Officer on the Q400 at Luxair. By night I build software for pilots and flight crews — from aviation management platforms to roster parsers. I've co-founded several ventures across Luxembourg and beyond, always at the intersection of aviation and technology.",
+  bio: "First Officer on the Boeing 737 at Luxair, after line flying on the Q400. By night I build software for pilots and flight crews — from aviation management platforms to roster parsers. I've co-founded several ventures across Luxembourg and beyond, always at the intersection of aviation and technology.",
   linkedin: "https://www.linkedin.com/in/gillesheinesch/",
 };
 
 export const experience = [
   {
-    role: "First Officer Q400",
+    role: "First Officer B737",
     company: "Luxair",
-    period: "May 2024 — Present",
+    period: "Mar 2026 — Present",
     location: "Luxembourg · On-site",
     employment: "Full-time",
     description: "Flight operations at Luxembourg's flagship airline.",
+    url: "",
+  },
+  {
+    role: "First Officer Q400",
+    company: "Luxair",
+    period: "May 2024 — Feb 2026",
+    location: "Luxembourg · On-site",
+    employment: "Full-time",
+    description: "Line operations on the Dash 8-Q400 fleet.",
     url: "",
   },
   {

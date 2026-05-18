@@ -1,0 +1,8 @@
+# Root-only workspace (pnpm 11+): required for allowBuilds — permits trusted native postinstall scripts.
+allowBuilds:
+    sharp: true
+    unrs-resolver: true
+
+# Pull Next's transitive postcss to a patched release (GHSA-qx2v-qp2m-jg93).
+overrides:
+    postcss: 8.5.14
