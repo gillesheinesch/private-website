@@ -9,6 +9,8 @@ export interface Project {
   period: string;
   website: string;
   github: string;
+  /** Optional hero screenshot under `public/` (e.g. `/images/projects/foo.png`) */
+  image?: string;
 }
 
 export const projects: Project[] = [
@@ -22,6 +24,7 @@ export const projects: Project[] = [
     period: "Jan 2025 — Present",
     website: "https://pilotflows.com",
     github: "",
+    image: "/images/projects/pilotflows-hero.png",
   },
   {
     title: "FrëschKëscht S.à r.l.",
@@ -33,6 +36,7 @@ export const projects: Project[] = [
     period: "Oct 2019 — Jan 2025",
     website: "https://www.freschkescht.lu",
     github: "",
+    image: "/images/projects/freschkescht-hero.png",
   },
   {
     title: "WeConnect S.à r.l.",
@@ -44,6 +48,7 @@ export const projects: Project[] = [
     period: "Sep 2022 — Jan 2025",
     website: "https://www.weconnect.lu",
     github: "",
+    image: "/images/projects/weconnect-hero.png",
   },
   {
     title: "Dahindo a.s.b.l.",
@@ -55,6 +60,7 @@ export const projects: Project[] = [
     period: "Oct 2022 — Present",
     website: "https://www.dahindo.com",
     github: "",
+    image: "/images/projects/dahindo-hero.png",
   },
   {
     title: "RosterX Web Application",
@@ -66,5 +72,6 @@ export const projects: Project[] = [
     period: "",
     website: "https://icalweb.heinesch.com/",
     github: "",
+    image: "/images/projects/rosterx-icon.png",
   },
 ];

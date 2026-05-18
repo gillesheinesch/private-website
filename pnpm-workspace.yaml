@@ -1,0 +1,4 @@
+# Root-only workspace (pnpm 11+): required for allowBuilds — permits trusted native postinstall scripts.
+allowBuilds:
+    sharp: true
+    unrs-resolver: true
