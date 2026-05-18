@@ -22,4 +22,9 @@ test.describe("About page", () => {
         await page.goto("/about");
         await expect(page.getByText(/Luxair/)).toBeVisible();
     });
+
+    test("mentions B737 first officer role", async ({ page }) => {
+        await page.goto("/about");
+        await expect(page.getByText(/First Officer B737/)).toBeVisible();
+    });
 });

@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { projects } from "@/data/projects";
 import { motion } from "framer-motion";
 import { ExternalLink, Github } from "lucide-react";
+import Image from "next/image";
 
 export default function ProjectsPage() {
     return (
@@ -19,7 +20,9 @@ export default function ProjectsPage() {
                 <h1 className="font-mono text-2xl font-bold tracking-tight text-zinc-100 sm:text-3xl md:text-4xl">
                     Projects
                 </h1>
-                <p className="mt-2 text-zinc-400">Flight logs — things I&apos;ve built or co-founded.</p>
+                <p className="mt-2 max-w-2xl text-base leading-relaxed text-zinc-400">
+                    Things I&apos;ve built or co-founded.
+                </p>
             </motion.header>
 
             <div className="grid gap-4 sm:gap-6 sm:grid-cols-2">
@@ -32,6 +35,19 @@ export default function ProjectsPage() {
                     >
                         <Card className="group flex h-full flex-col border-zinc-800 bg-zinc-900/50 transition-all duration-300 hover:border-cyan-500/30 hover:shadow-lg hover:shadow-cyan-500/5">
                             <CardContent className="flex flex-1 flex-col p-4 sm:p-6">
+                                {project.image && (
+                                    // Fixed slot — object-contain keeps full image visible; no extra backdrop so mismatched ratios blend with the card
+                                    <div className="relative mb-4 aspect-[16/10] min-h-[180px] w-full overflow-hidden rounded-lg bg-transparent ring-1 ring-inset ring-zinc-700/50 sm:min-h-[200px]">
+                                        <Image
+                                            src={project.image}
+                                            alt={`${project.title} product preview`}
+                                            fill
+                                            sizes="(max-width: 640px) 100vw, 448px"
+                                            className="object-contain object-center"
+                                            priority={i === 0}
+                                        />
+                                    </div>
+                                )}
                                 <div className="flex flex-wrap items-center justify-between gap-2">
                                     <span className="text-xs font-medium uppercase tracking-wider text-cyan-500/80">
                                         {project.position}
