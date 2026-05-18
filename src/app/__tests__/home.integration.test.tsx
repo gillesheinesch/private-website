@@ -2,9 +2,10 @@ import { render, screen } from "@testing-library/react";
 import HomePage from "../(home)/page";
 
 describe("Home page (integration)", () => {
-    it("renders hero badge Aviation × Code", () => {
+    it("renders hero name and monospace tag line", () => {
         render(<HomePage />);
-        expect(screen.getByText(/Aviation × Code/)).toBeInTheDocument();
+        expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(/Gilles Heinesch/);
+        expect(screen.getByText(/Aviation enthusiast · Web developer/)).toBeInTheDocument();
     });
 
     it("renders typing line const flight = code.takeoff()", () => {

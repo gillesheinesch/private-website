@@ -13,7 +13,8 @@ describe("About page (integration)", () => {
     render(<AboutPage />);
     expect(screen.getByText(/Experience/)).toBeInTheDocument();
     expect(screen.getAllByText(/Luxair/).length).toBeGreaterThan(0);
-    expect(screen.getByText(/First Officer B737/)).toBeInTheDocument();
+    // Role line appears in hero + timeline — assert the intro blurb that is unique.
+    expect(screen.getByText(/First Officer B737 · Co-Founder/)).toBeInTheDocument();
   });
 
   it("has LinkedIn link", () => {
