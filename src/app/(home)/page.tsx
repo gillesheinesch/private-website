@@ -6,7 +6,7 @@ import { FlightLogTerminal } from "@/components/landing/flight-log-terminal";
 import { TypingHero } from "@/components/landing/typing-hero";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
-import { Code2, FileText, Plane, User } from "lucide-react";
+import { Code2, FileText, User } from "lucide-react";
 import Link from "next/link";
 
 const LINKS = [
@@ -29,15 +29,6 @@ export default function Home() {
                     transition={{ duration: 0.6 }}
                     className="relative z-10 max-w-2xl text-center"
                 >
-                    <motion.div
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        transition={{ type: "spring", stiffness: 200, delay: 0.2 }}
-                        className="mb-6 inline-flex items-center gap-2 rounded-full border border-cyan-500/30 bg-cyan-500/5 px-4 py-1.5 text-sm text-cyan-400"
-                    >
-                        <Plane className="h-4 w-4" />
-                        Aviation × Code
-                    </motion.div>
                     <TypingHero />
                     <p className="mt-4 max-w-md text-center font-sans text-sm text-zinc-400 sm:mt-6 sm:text-base">
                         I build things for the web and love everything that flies. Explore my projects, read the blog,
