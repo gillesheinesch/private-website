@@ -13,6 +13,7 @@ describe("About page (integration)", () => {
     render(<AboutPage />);
     expect(screen.getByText(/Experience/)).toBeInTheDocument();
     expect(screen.getAllByText(/Luxair/).length).toBeGreaterThan(0);
+    expect(screen.getByText(/First Officer B737/)).toBeInTheDocument();
   });
 
   it("has LinkedIn link", () => {
