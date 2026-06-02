@@ -1,0 +1,53 @@
+# Compress images on `dev`: nightly at 01:00 UTC or manually; commits and pushes to `dev` when assets shrink.
+# Uses GITHUB_TOKEN (contents: write). Auto-commits do not re-trigger other push workflows (loop prevention).
+# Scheduled runs use the workflow file on the default branch — merge this file to `master` for cron to run.
+# If pushes fail with GH013, allow GitHub Actions to push to `dev` in branch protection / rulesets.
+
+name: Image compression
+
+on:
+    schedule:
+        - cron: "0 1 * * *"
+    workflow_dispatch:
+
+permissions:
+    contents: write
+
+concurrency:
+    group: image-compression
+    cancel-in-progress: true
+
+jobs:
+    compress:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+              with:
+                  ref: dev
+                  fetch-depth: 0
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version-file: ".nvmrc"
+
+            - name: Compress images repository-wide
+              shell: bash
+              env:
+                  REPO_ROOT: ${{ github.workspace }}
+                  IGNORE_PATHS: "node_modules/**,.next/**,coverage/**,test-results/**"
+              run: |
+                  set -euo pipefail
+                  HELPER="${RUNNER_TEMP}/compress-repo-images"
+                  mkdir -p "${HELPER}"
+                  cp "${GITHUB_WORKSPACE}/.github/scripts/compress-repository-images.mjs" "${HELPER}/compress-repository-images.mjs"
+                  (cd "${HELPER}" && npm init -y >/dev/null 2>&1 && npm install sharp@0.34.5 --omit=dev --no-fund --no-audit --loglevel=error)
+                  (cd "${HELPER}" && node ./compress-repository-images.mjs)
+
+            - name: Commit and push optimized images
+              uses: stefanzweifel/git-auto-commit-action@v5
+              with:
+                  branch: dev
+                  commit_message: "chore(images): optimize assets"
