@@ -4,537 +4,538 @@
 name: Release and deploy
 
 concurrency:
-  group: deploy-${{ github.ref }}
-  cancel-in-progress: false
+    group: deploy-${{ github.ref }}
+    cancel-in-progress: false
 
 on:
-  push:
-    branches: [master]
-  schedule:
-    - cron: "0 */6 * * *"
-  workflow_dispatch:
+    push:
+        branches: [master]
+    schedule:
+        - cron: "0 */6 * * *"
+    workflow_dispatch:
 
 permissions:
-  contents: write
-  packages: write
-  pull-requests: write
-  issues: write
-  actions: write
+    contents: write
+    packages: write
+    pull-requests: write
+    issues: write
+    actions: write
+    variables: write
 
 env:
-  REGISTRY: ghcr.io
-  WEB_ORIGIN: ${{ secrets.WEB_ORIGIN || 'https://heinesch.com' }}
+    REGISTRY: ghcr.io
+    WEB_ORIGIN: ${{ secrets.WEB_ORIGIN || 'https://heinesch.com' }}
 
 jobs:
-  deploy-gate:
-    name: Check deploy cadence
-    runs-on: ubuntu-latest
-    outputs:
-      should_deploy: ${{ steps.gate.outputs.should_deploy }}
-      deploy_sha: ${{ steps.gate.outputs.deploy_sha }}
-    steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
-        with:
-          ref: master
-          fetch-depth: 1
+    deploy-gate:
+        name: Check deploy cadence
+        runs-on: ubuntu-latest
+        outputs:
+            should_deploy: ${{ steps.gate.outputs.should_deploy }}
+            deploy_sha: ${{ steps.gate.outputs.deploy_sha }}
+        steps:
+            - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+              with:
+                  ref: master
+                  fetch-depth: 1
 
-      - id: gate
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          EVENT_NAME: ${{ github.event_name }}
-        run: |
-          set -euo pipefail
-          HEAD_SHA=$(git rev-parse HEAD)
-          echo "deploy_sha=${HEAD_SHA}" >> "$GITHUB_OUTPUT"
+            - id: gate
+              env:
+                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  EVENT_NAME: ${{ github.event_name }}
+              run: |
+                  set -euo pipefail
+                  HEAD_SHA=$(git rev-parse HEAD)
+                  echo "deploy_sha=${HEAD_SHA}" >> "$GITHUB_OUTPUT"
 
-          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
-            echo "should_deploy=true" >> "$GITHUB_OUTPUT"
-            echo "Manual deploy — proceeding."
-            exit 0
-          fi
+                  if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+                    echo "should_deploy=true" >> "$GITHUB_OUTPUT"
+                    echo "Manual deploy — proceeding."
+                    exit 0
+                  fi
 
-          LAST_SHA=$(gh variable get LAST_DEPLOYED_SHA --repo "$GITHUB_REPOSITORY" 2>/dev/null || true)
-          LAST_AT=$(gh variable get LAST_DEPLOYED_AT --repo "$GITHUB_REPOSITORY" 2>/dev/null || true)
+                  LAST_SHA=$(gh variable get LAST_DEPLOYED_SHA --repo "$GITHUB_REPOSITORY" 2>/dev/null || true)
+                  LAST_AT=$(gh variable get LAST_DEPLOYED_AT --repo "$GITHUB_REPOSITORY" 2>/dev/null || true)
 
-          if [ -n "$LAST_SHA" ] && [ "$HEAD_SHA" = "$LAST_SHA" ]; then
-            echo "should_deploy=false" >> "$GITHUB_OUTPUT"
-            echo "No undeployed commits on master (HEAD=${HEAD_SHA})."
-            exit 0
-          fi
+                  if [ -n "$LAST_SHA" ] && [ "$HEAD_SHA" = "$LAST_SHA" ]; then
+                    echo "should_deploy=false" >> "$GITHUB_OUTPUT"
+                    echo "No undeployed commits on master (HEAD=${HEAD_SHA})."
+                    exit 0
+                  fi
 
-          if [ "$EVENT_NAME" = "schedule" ]; then
-            echo "should_deploy=true" >> "$GITHUB_OUTPUT"
-            echo "Scheduled deploy — undeployed commits on master."
-            exit 0
-          fi
+                  if [ "$EVENT_NAME" = "schedule" ]; then
+                    echo "should_deploy=true" >> "$GITHUB_OUTPUT"
+                    echo "Scheduled deploy — undeployed commits on master."
+                    exit 0
+                  fi
 
-          if [ -n "$LAST_AT" ]; then
-            LAST_EPOCH=$(date -d "$LAST_AT" +%s)
-            NOW_EPOCH=$(date -u +%s)
-            ELAPSED=$((NOW_EPOCH - LAST_EPOCH))
-            SIX_HOURS=$((6 * 60 * 60))
-            if [ "$ELAPSED" -lt "$SIX_HOURS" ]; then
-              echo "should_deploy=false" >> "$GITHUB_OUTPUT"
-              echo "Deferring deploy (${ELAPSED}s since last deploy, minimum ${SIX_HOURS}s)."
-              exit 0
-            fi
-          fi
+                  if [ -n "$LAST_AT" ]; then
+                    LAST_EPOCH=$(date -d "$LAST_AT" +%s)
+                    NOW_EPOCH=$(date -u +%s)
+                    ELAPSED=$((NOW_EPOCH - LAST_EPOCH))
+                    SIX_HOURS=$((6 * 60 * 60))
+                    if [ "$ELAPSED" -lt "$SIX_HOURS" ]; then
+                      echo "should_deploy=false" >> "$GITHUB_OUTPUT"
+                      echo "Deferring deploy (${ELAPSED}s since last deploy, minimum ${SIX_HOURS}s)."
+                      exit 0
+                    fi
+                  fi
 
-          echo "should_deploy=true" >> "$GITHUB_OUTPUT"
-          echo "Push deploy — undeployed commits and 6h cadence satisfied."
+                  echo "should_deploy=true" >> "$GITHUB_OUTPUT"
+                  echo "Push deploy — undeployed commits and 6h cadence satisfied."
 
-  release:
-    name: Semantic release
-    if: github.event_name == 'push'
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    outputs:
-      version: ${{ steps.version.outputs.version }}
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
-        with:
-          fetch-depth: 0
+    release:
+        name: Semantic release
+        if: github.event_name == 'push'
+        runs-on: ubuntu-latest
+        timeout-minutes: 15
+        outputs:
+            version: ${{ steps.version.outputs.version }}
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+              with:
+                  fetch-depth: 0
 
-      - name: Setup Node.js
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
-        with:
-          node-version-file: .nvmrc
+            - name: Setup Node.js
+              uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+              with:
+                  node-version-file: .nvmrc
 
-      - name: Enable pnpm (Corepack)
-        run: corepack enable && corepack prepare pnpm@11.5.2 --activate
+            - name: Enable pnpm (Corepack)
+              run: corepack enable && corepack prepare pnpm@11.5.2 --activate
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+            - name: Install dependencies
+              run: pnpm install --frozen-lockfile
 
-      - name: Configure Git
-        run: |
-          git config user.name "semantic-release-bot"
-          git config user.email "semantic-release-bot@martynus.net"
+            - name: Configure Git
+              run: |
+                  git config user.name "semantic-release-bot"
+                  git config user.email "semantic-release-bot@martynus.net"
 
-      - name: Normalize branch ref for semantic-release
-        run: |
-          set -euo pipefail
-          REF_NAME="${GITHUB_REF_NAME:-}"
-          if [[ -z "$REF_NAME" || "$REF_NAME" == "HEAD" ]]; then
-            REF_NAME="master"
-          fi
-          git checkout -B "$REF_NAME" HEAD
+            - name: Normalize branch ref for semantic-release
+              run: |
+                  set -euo pipefail
+                  REF_NAME="${GITHUB_REF_NAME:-}"
+                  if [[ -z "$REF_NAME" || "$REF_NAME" == "HEAD" ]]; then
+                    REF_NAME="master"
+                  fi
+                  git checkout -B "$REF_NAME" HEAD
 
-      - name: Run semantic-release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: pnpm exec semantic-release
+            - name: Run semantic-release
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              run: pnpm exec semantic-release
 
-      - name: Record package version
-        id: version
-        run: |
-          VERSION=$(node -p "require('./package.json').version")
-          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+            - name: Record package version
+              id: version
+              run: |
+                  VERSION=$(node -p "require('./package.json').version")
+                  echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
 
-  build:
-    name: Build and push images
-    needs: [deploy-gate, release]
-    if: >-
-      always() &&
-      needs.deploy-gate.outputs.should_deploy == 'true' &&
-      (github.event_name == 'workflow_dispatch' ||
-       github.event_name == 'schedule' ||
-       needs.release.result == 'success')
-    runs-on: ubuntu-latest
-    outputs:
-      commit_sha: ${{ needs.deploy-gate.outputs.deploy_sha }}
-      image_repo_web: ${{ steps.meta.outputs.image_repo_web }}
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
-        with:
-          ref: ${{ needs.deploy-gate.outputs.deploy_sha }}
+    build:
+        name: Build and push images
+        needs: [deploy-gate, release]
+        if: >-
+            always() &&
+            needs.deploy-gate.outputs.should_deploy == 'true' &&
+            (github.event_name == 'workflow_dispatch' ||
+             github.event_name == 'schedule' ||
+             needs.release.result == 'success')
+        runs-on: ubuntu-latest
+        outputs:
+            commit_sha: ${{ needs.deploy-gate.outputs.deploy_sha }}
+            image_repo_web: ${{ steps.meta.outputs.image_repo_web }}
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+              with:
+                  ref: ${{ needs.deploy-gate.outputs.deploy_sha }}
 
-      - name: Install jq
-        run: sudo apt-get update -qq && sudo apt-get install -y -qq jq
+            - name: Install jq
+              run: sudo apt-get update -qq && sudo apt-get install -y -qq jq
 
-      - name: Read deploy metadata
-        id: meta
-        run: |
-          REPO_LC=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
-          WEB_NAME=$(jq -r '.imageNameWeb' .github/deploy.json)
-          SHORT_SHA=$(echo "${{ needs.deploy-gate.outputs.deploy_sha }}" | cut -c1-7)
-          echo "short_sha=${SHORT_SHA}" >> "$GITHUB_OUTPUT"
-          echo "image_repo_web=${REGISTRY}/${REPO_LC}/${WEB_NAME}" >> "$GITHUB_OUTPUT"
+            - name: Read deploy metadata
+              id: meta
+              run: |
+                  REPO_LC=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+                  WEB_NAME=$(jq -r '.imageNameWeb' .github/deploy.json)
+                  SHORT_SHA=$(echo "${{ needs.deploy-gate.outputs.deploy_sha }}" | cut -c1-7)
+                  echo "short_sha=${SHORT_SHA}" >> "$GITHUB_OUTPUT"
+                  echo "image_repo_web=${REGISTRY}/${REPO_LC}/${WEB_NAME}" >> "$GITHUB_OUTPUT"
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3.12.0
+            - name: Set up Docker Buildx
+              uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3.12.0
 
-      - name: Log in to GHCR
-        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3.7.0
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+            - name: Log in to GHCR
+              uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3.7.0
+              with:
+                  registry: ${{ env.REGISTRY }}
+                  username: ${{ github.actor }}
+                  password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push web image
-        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6.19.2
-        with:
-          context: .
-          file: apps/web/Dockerfile
-          push: true
-          tags: |
-            ${{ steps.meta.outputs.image_repo_web }}:sha-${{ steps.meta.outputs.short_sha }}
-            ${{ steps.meta.outputs.image_repo_web }}:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+            - name: Build and push web image
+              uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6.19.2
+              with:
+                  context: .
+                  file: apps/web/Dockerfile
+                  push: true
+                  tags: |
+                      ${{ steps.meta.outputs.image_repo_web }}:sha-${{ steps.meta.outputs.short_sha }}
+                      ${{ steps.meta.outputs.image_repo_web }}:latest
+                  cache-from: type=gha
+                  cache-to: type=gha,mode=max
 
-  validate-staging:
-    name: Validate staging
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+    validate-staging:
+        name: Validate staging
+        needs: build
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
 
-      - name: Install jq
-        run: sudo apt-get update -qq && sudo apt-get install -y -qq jq
+            - name: Install jq
+              run: sudo apt-get update -qq && sudo apt-get install -y -qq jq
 
-      - name: Load deploy config
-        id: cfg
-        run: |
-          F=.github/deploy.json
-          REPO_LC=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
-          {
-            echo "compose_project=$(jq -r .composeProjectName "$F")"
-            echo "image_local_tag_web=$(jq -r .imageLocalTagWeb "$F")"
-            echo "prod_port_web=$(jq -r .prodPortWeb "$F")"
-            echo "staging_port_web=$(jq -r .stagingPortWeb "$F")"
-            echo "container_web_prod=$(jq -r .containerNameWebProd "$F")"
-            echo "container_web_staging=$(jq -r .containerNameWebStaging "$F")"
-            echo "image_repo_web=${REGISTRY}/${REPO_LC}/$(jq -r .imageNameWeb "$F")"
-          } >> "$GITHUB_OUTPUT"
+            - name: Load deploy config
+              id: cfg
+              run: |
+                  F=.github/deploy.json
+                  REPO_LC=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+                  {
+                    echo "compose_project=$(jq -r .composeProjectName "$F")"
+                    echo "image_local_tag_web=$(jq -r .imageLocalTagWeb "$F")"
+                    echo "prod_port_web=$(jq -r .prodPortWeb "$F")"
+                    echo "staging_port_web=$(jq -r .stagingPortWeb "$F")"
+                    echo "container_web_prod=$(jq -r .containerNameWebProd "$F")"
+                    echo "container_web_staging=$(jq -r .containerNameWebStaging "$F")"
+                    echo "image_repo_web=${REGISTRY}/${REPO_LC}/$(jq -r .imageNameWeb "$F")"
+                  } >> "$GITHUB_OUTPUT"
 
-      - name: Setup SSH
-        env:
-          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
-          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
-          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
-        run: bash scripts/setup-ssh.sh
+            - name: Setup SSH
+              env:
+                  DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+                  DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+                  DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+              run: bash scripts/setup-ssh.sh
 
-      - name: Prepare images on server
-        env:
-          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
-          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
-          COMMIT_SHA: ${{ needs.build.outputs.commit_sha }}
-          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_ACTOR: ${{ github.actor }}
-          GITHUB_REPOSITORY: ${{ github.repository }}
-          COMPOSE_PROJECT_NAME: ${{ steps.cfg.outputs.compose_project }}
-          IMAGE_REPO_WEB: ${{ steps.cfg.outputs.image_repo_web }}
-          IMAGE_LOCAL_TAG_WEB: ${{ steps.cfg.outputs.image_local_tag_web }}
-          PROD_PORT_WEB: ${{ steps.cfg.outputs.prod_port_web }}
-          STAGING_PORT_WEB: ${{ steps.cfg.outputs.staging_port_web }}
-          CONTAINER_NAME_WEB_PROD: ${{ steps.cfg.outputs.container_web_prod }}
-          CONTAINER_NAME_WEB_STAGING: ${{ steps.cfg.outputs.container_web_staging }}
-          WEB_ORIGIN: ${{ env.WEB_ORIGIN }}
-        run: bash scripts/deploy-to-server.sh prepare
+            - name: Prepare images on server
+              env:
+                  DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+                  DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+                  COMMIT_SHA: ${{ needs.build.outputs.commit_sha }}
+                  GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  GITHUB_ACTOR: ${{ github.actor }}
+                  GITHUB_REPOSITORY: ${{ github.repository }}
+                  COMPOSE_PROJECT_NAME: ${{ steps.cfg.outputs.compose_project }}
+                  IMAGE_REPO_WEB: ${{ steps.cfg.outputs.image_repo_web }}
+                  IMAGE_LOCAL_TAG_WEB: ${{ steps.cfg.outputs.image_local_tag_web }}
+                  PROD_PORT_WEB: ${{ steps.cfg.outputs.prod_port_web }}
+                  STAGING_PORT_WEB: ${{ steps.cfg.outputs.staging_port_web }}
+                  CONTAINER_NAME_WEB_PROD: ${{ steps.cfg.outputs.container_web_prod }}
+                  CONTAINER_NAME_WEB_STAGING: ${{ steps.cfg.outputs.container_web_staging }}
+                  WEB_ORIGIN: ${{ env.WEB_ORIGIN }}
+              run: bash scripts/deploy-to-server.sh prepare
 
-      - name: Validate staging stack
-        env:
-          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
-          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
-          COMMIT_SHA: ${{ needs.build.outputs.commit_sha }}
-          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_ACTOR: ${{ github.actor }}
-          GITHUB_REPOSITORY: ${{ github.repository }}
-          COMPOSE_PROJECT_NAME: ${{ steps.cfg.outputs.compose_project }}
-          IMAGE_REPO_WEB: ${{ steps.cfg.outputs.image_repo_web }}
-          IMAGE_LOCAL_TAG_WEB: ${{ steps.cfg.outputs.image_local_tag_web }}
-          PROD_PORT_WEB: ${{ steps.cfg.outputs.prod_port_web }}
-          STAGING_PORT_WEB: ${{ steps.cfg.outputs.staging_port_web }}
-          CONTAINER_NAME_WEB_PROD: ${{ steps.cfg.outputs.container_web_prod }}
-          CONTAINER_NAME_WEB_STAGING: ${{ steps.cfg.outputs.container_web_staging }}
-          WEB_ORIGIN: ${{ env.WEB_ORIGIN }}
-        run: bash scripts/deploy-to-server.sh validate
+            - name: Validate staging stack
+              env:
+                  DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+                  DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+                  COMMIT_SHA: ${{ needs.build.outputs.commit_sha }}
+                  GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  GITHUB_ACTOR: ${{ github.actor }}
+                  GITHUB_REPOSITORY: ${{ github.repository }}
+                  COMPOSE_PROJECT_NAME: ${{ steps.cfg.outputs.compose_project }}
+                  IMAGE_REPO_WEB: ${{ steps.cfg.outputs.image_repo_web }}
+                  IMAGE_LOCAL_TAG_WEB: ${{ steps.cfg.outputs.image_local_tag_web }}
+                  PROD_PORT_WEB: ${{ steps.cfg.outputs.prod_port_web }}
+                  STAGING_PORT_WEB: ${{ steps.cfg.outputs.staging_port_web }}
+                  CONTAINER_NAME_WEB_PROD: ${{ steps.cfg.outputs.container_web_prod }}
+                  CONTAINER_NAME_WEB_STAGING: ${{ steps.cfg.outputs.container_web_staging }}
+                  WEB_ORIGIN: ${{ env.WEB_ORIGIN }}
+              run: bash scripts/deploy-to-server.sh validate
 
-  prod-approval:
-    name: Production approval gate
-    needs: [release, build, validate-staging]
-    if: >-
-      always() &&
-      needs.build.result == 'success' &&
-      needs.validate-staging.result == 'success'
-    runs-on: ubuntu-latest
-    environment: production
-    timeout-minutes: 1440
-    steps:
-      - run: echo "Production deploy approved for commit ${{ needs.build.outputs.commit_sha }}"
+    prod-approval:
+        name: Production approval gate
+        needs: [release, build, validate-staging]
+        if: >-
+            always() &&
+            needs.build.result == 'success' &&
+            needs.validate-staging.result == 'success'
+        runs-on: ubuntu-latest
+        environment: production
+        timeout-minutes: 1440
+        steps:
+            - run: echo "Production deploy approved for commit ${{ needs.build.outputs.commit_sha }}"
 
-  deploy-swap:
-    name: Swap to production
-    needs: [build, validate-staging, prod-approval]
-    if: needs.prod-approval.result == 'success'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+    deploy-swap:
+        name: Swap to production
+        needs: [build, validate-staging, prod-approval]
+        if: needs.prod-approval.result == 'success'
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
 
-      - name: Install jq
-        run: sudo apt-get update -qq && sudo apt-get install -y -qq jq
+            - name: Install jq
+              run: sudo apt-get update -qq && sudo apt-get install -y -qq jq
 
-      - name: Load deploy config
-        id: cfg
-        run: |
-          F=.github/deploy.json
-          REPO_LC=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
-          {
-            echo "compose_project=$(jq -r .composeProjectName "$F")"
-            echo "image_local_tag_web=$(jq -r .imageLocalTagWeb "$F")"
-            echo "prod_port_web=$(jq -r .prodPortWeb "$F")"
-            echo "staging_port_web=$(jq -r .stagingPortWeb "$F")"
-            echo "container_web_prod=$(jq -r .containerNameWebProd "$F")"
-            echo "container_web_staging=$(jq -r .containerNameWebStaging "$F")"
-            echo "image_repo_web=${REGISTRY}/${REPO_LC}/$(jq -r .imageNameWeb "$F")"
-          } >> "$GITHUB_OUTPUT"
+            - name: Load deploy config
+              id: cfg
+              run: |
+                  F=.github/deploy.json
+                  REPO_LC=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+                  {
+                    echo "compose_project=$(jq -r .composeProjectName "$F")"
+                    echo "image_local_tag_web=$(jq -r .imageLocalTagWeb "$F")"
+                    echo "prod_port_web=$(jq -r .prodPortWeb "$F")"
+                    echo "staging_port_web=$(jq -r .stagingPortWeb "$F")"
+                    echo "container_web_prod=$(jq -r .containerNameWebProd "$F")"
+                    echo "container_web_staging=$(jq -r .containerNameWebStaging "$F")"
+                    echo "image_repo_web=${REGISTRY}/${REPO_LC}/$(jq -r .imageNameWeb "$F")"
+                  } >> "$GITHUB_OUTPUT"
 
-      - name: Setup SSH
-        env:
-          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
-          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
-          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
-        run: bash scripts/setup-ssh.sh
+            - name: Setup SSH
+              env:
+                  DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+                  DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+                  DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+              run: bash scripts/setup-ssh.sh
 
-      - name: Swap to production
-        env:
-          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
-          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
-          COMMIT_SHA: ${{ needs.build.outputs.commit_sha }}
-          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_ACTOR: ${{ github.actor }}
-          GITHUB_REPOSITORY: ${{ github.repository }}
-          COMPOSE_PROJECT_NAME: ${{ steps.cfg.outputs.compose_project }}
-          IMAGE_REPO_WEB: ${{ steps.cfg.outputs.image_repo_web }}
-          IMAGE_LOCAL_TAG_WEB: ${{ steps.cfg.outputs.image_local_tag_web }}
-          PROD_PORT_WEB: ${{ steps.cfg.outputs.prod_port_web }}
-          STAGING_PORT_WEB: ${{ steps.cfg.outputs.staging_port_web }}
-          CONTAINER_NAME_WEB_PROD: ${{ steps.cfg.outputs.container_web_prod }}
-          CONTAINER_NAME_WEB_STAGING: ${{ steps.cfg.outputs.container_web_staging }}
-          WEB_ORIGIN: ${{ env.WEB_ORIGIN }}
-        run: bash scripts/deploy-to-server.sh swap
+            - name: Swap to production
+              env:
+                  DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+                  DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+                  COMMIT_SHA: ${{ needs.build.outputs.commit_sha }}
+                  GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  GITHUB_ACTOR: ${{ github.actor }}
+                  GITHUB_REPOSITORY: ${{ github.repository }}
+                  COMPOSE_PROJECT_NAME: ${{ steps.cfg.outputs.compose_project }}
+                  IMAGE_REPO_WEB: ${{ steps.cfg.outputs.image_repo_web }}
+                  IMAGE_LOCAL_TAG_WEB: ${{ steps.cfg.outputs.image_local_tag_web }}
+                  PROD_PORT_WEB: ${{ steps.cfg.outputs.prod_port_web }}
+                  STAGING_PORT_WEB: ${{ steps.cfg.outputs.staging_port_web }}
+                  CONTAINER_NAME_WEB_PROD: ${{ steps.cfg.outputs.container_web_prod }}
+                  CONTAINER_NAME_WEB_STAGING: ${{ steps.cfg.outputs.container_web_staging }}
+                  WEB_ORIGIN: ${{ env.WEB_ORIGIN }}
+              run: bash scripts/deploy-to-server.sh swap
 
-      - name: Record last deploy
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          DEPLOYED_SHA: ${{ needs.build.outputs.commit_sha }}
-        run: |
-          gh variable set LAST_DEPLOYED_SHA --body "$DEPLOYED_SHA" --repo "$GITHUB_REPOSITORY"
-          gh variable set LAST_DEPLOYED_AT --body "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --repo "$GITHUB_REPOSITORY"
+            - name: Record last deploy
+              env:
+                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  DEPLOYED_SHA: ${{ needs.build.outputs.commit_sha }}
+              run: |
+                  gh variable set LAST_DEPLOYED_SHA --body "$DEPLOYED_SHA" --repo "$GITHUB_REPOSITORY"
+                  gh variable set LAST_DEPLOYED_AT --body "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --repo "$GITHUB_REPOSITORY"
 
-  deploy-rollback:
-    name: Rollback production
-    needs: [build, validate-staging, prod-approval, deploy-swap]
-    if: >-
-      always() &&
-      needs.prod-approval.result == 'success' &&
-      needs.deploy-swap.result == 'failure'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+    deploy-rollback:
+        name: Rollback production
+        needs: [build, validate-staging, prod-approval, deploy-swap]
+        if: >-
+            always() &&
+            needs.prod-approval.result == 'success' &&
+            needs.deploy-swap.result == 'failure'
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
 
-      - name: Install jq
-        run: sudo apt-get update -qq && sudo apt-get install -y -qq jq
+            - name: Install jq
+              run: sudo apt-get update -qq && sudo apt-get install -y -qq jq
 
-      - name: Load deploy config
-        id: cfg
-        run: |
-          F=.github/deploy.json
-          REPO_LC=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
-          {
-            echo "compose_project=$(jq -r .composeProjectName "$F")"
-            echo "image_local_tag_web=$(jq -r .imageLocalTagWeb "$F")"
-            echo "prod_port_web=$(jq -r .prodPortWeb "$F")"
-            echo "staging_port_web=$(jq -r .stagingPortWeb "$F")"
-            echo "container_web_prod=$(jq -r .containerNameWebProd "$F")"
-            echo "container_web_staging=$(jq -r .containerNameWebStaging "$F")"
-            echo "image_repo_web=${REGISTRY}/${REPO_LC}/$(jq -r .imageNameWeb "$F")"
-          } >> "$GITHUB_OUTPUT"
+            - name: Load deploy config
+              id: cfg
+              run: |
+                  F=.github/deploy.json
+                  REPO_LC=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+                  {
+                    echo "compose_project=$(jq -r .composeProjectName "$F")"
+                    echo "image_local_tag_web=$(jq -r .imageLocalTagWeb "$F")"
+                    echo "prod_port_web=$(jq -r .prodPortWeb "$F")"
+                    echo "staging_port_web=$(jq -r .stagingPortWeb "$F")"
+                    echo "container_web_prod=$(jq -r .containerNameWebProd "$F")"
+                    echo "container_web_staging=$(jq -r .containerNameWebStaging "$F")"
+                    echo "image_repo_web=${REGISTRY}/${REPO_LC}/$(jq -r .imageNameWeb "$F")"
+                  } >> "$GITHUB_OUTPUT"
 
-      - name: Setup SSH
-        env:
-          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
-          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
-          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
-        run: bash scripts/setup-ssh.sh
+            - name: Setup SSH
+              env:
+                  DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+                  DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+                  DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+              run: bash scripts/setup-ssh.sh
 
-      - name: Rollback
-        env:
-          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
-          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
-          COMMIT_SHA: ${{ needs.build.outputs.commit_sha }}
-          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_ACTOR: ${{ github.actor }}
-          GITHUB_REPOSITORY: ${{ github.repository }}
-          COMPOSE_PROJECT_NAME: ${{ steps.cfg.outputs.compose_project }}
-          IMAGE_REPO_WEB: ${{ steps.cfg.outputs.image_repo_web }}
-          IMAGE_LOCAL_TAG_WEB: ${{ steps.cfg.outputs.image_local_tag_web }}
-          PROD_PORT_WEB: ${{ steps.cfg.outputs.prod_port_web }}
-          STAGING_PORT_WEB: ${{ steps.cfg.outputs.staging_port_web }}
-          CONTAINER_NAME_WEB_PROD: ${{ steps.cfg.outputs.container_web_prod }}
-          CONTAINER_NAME_WEB_STAGING: ${{ steps.cfg.outputs.container_web_staging }}
-          WEB_ORIGIN: ${{ env.WEB_ORIGIN }}
-        run: bash scripts/deploy-to-server.sh rollback
+            - name: Rollback
+              env:
+                  DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+                  DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+                  COMMIT_SHA: ${{ needs.build.outputs.commit_sha }}
+                  GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  GITHUB_ACTOR: ${{ github.actor }}
+                  GITHUB_REPOSITORY: ${{ github.repository }}
+                  COMPOSE_PROJECT_NAME: ${{ steps.cfg.outputs.compose_project }}
+                  IMAGE_REPO_WEB: ${{ steps.cfg.outputs.image_repo_web }}
+                  IMAGE_LOCAL_TAG_WEB: ${{ steps.cfg.outputs.image_local_tag_web }}
+                  PROD_PORT_WEB: ${{ steps.cfg.outputs.prod_port_web }}
+                  STAGING_PORT_WEB: ${{ steps.cfg.outputs.staging_port_web }}
+                  CONTAINER_NAME_WEB_PROD: ${{ steps.cfg.outputs.container_web_prod }}
+                  CONTAINER_NAME_WEB_STAGING: ${{ steps.cfg.outputs.container_web_staging }}
+                  WEB_ORIGIN: ${{ env.WEB_ORIGIN }}
+              run: bash scripts/deploy-to-server.sh rollback
 
-  cleanup-staging:
-    name: Cleanup staging containers
-    needs: [deploy-gate, build, validate-staging, prod-approval, deploy-swap]
-    if: >-
-      always() &&
-      needs.deploy-gate.outputs.should_deploy == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+    cleanup-staging:
+        name: Cleanup staging containers
+        needs: [deploy-gate, build, validate-staging, prod-approval, deploy-swap]
+        if: >-
+            always() &&
+            needs.deploy-gate.outputs.should_deploy == 'true'
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
 
-      - name: Install jq
-        run: sudo apt-get update -qq && sudo apt-get install -y -qq jq
+            - name: Install jq
+              run: sudo apt-get update -qq && sudo apt-get install -y -qq jq
 
-      - name: Load deploy config
-        id: cfg
-        run: |
-          F=.github/deploy.json
-          REPO_LC=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
-          {
-            echo "compose_project=$(jq -r .composeProjectName "$F")"
-            echo "image_local_tag_web=$(jq -r .imageLocalTagWeb "$F")"
-            echo "container_web_staging=$(jq -r .containerNameWebStaging "$F")"
-            echo "image_repo_web=${REGISTRY}/${REPO_LC}/$(jq -r .imageNameWeb "$F")"
-          } >> "$GITHUB_OUTPUT"
+            - name: Load deploy config
+              id: cfg
+              run: |
+                  F=.github/deploy.json
+                  REPO_LC=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+                  {
+                    echo "compose_project=$(jq -r .composeProjectName "$F")"
+                    echo "image_local_tag_web=$(jq -r .imageLocalTagWeb "$F")"
+                    echo "container_web_staging=$(jq -r .containerNameWebStaging "$F")"
+                    echo "image_repo_web=${REGISTRY}/${REPO_LC}/$(jq -r .imageNameWeb "$F")"
+                  } >> "$GITHUB_OUTPUT"
 
-      - name: Setup SSH
-        env:
-          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
-          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
-          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
-        run: bash scripts/setup-ssh.sh
+            - name: Setup SSH
+              env:
+                  DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+                  DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+                  DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+              run: bash scripts/setup-ssh.sh
 
-      - name: Cleanup staging
-        env:
-          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
-          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
-          COMMIT_SHA: ${{ needs.deploy-gate.outputs.deploy_sha }}
-          COMPOSE_PROJECT_NAME: ${{ steps.cfg.outputs.compose_project }}
-          IMAGE_REPO_WEB: ${{ steps.cfg.outputs.image_repo_web }}
-          IMAGE_LOCAL_TAG_WEB: ${{ steps.cfg.outputs.image_local_tag_web }}
-          CONTAINER_NAME_WEB_STAGING: ${{ steps.cfg.outputs.container_web_staging }}
-          CONTAINER_NAME_WEB_PROD: private-website-web
-          STAGING_PORT_WEB: "4510"
-          PROD_PORT_WEB: "4500"
-          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_ACTOR: ${{ github.actor }}
-          WEB_ORIGIN: ${{ env.WEB_ORIGIN }}
-        run: bash scripts/deploy-to-server.sh cleanup-staging
+            - name: Cleanup staging
+              env:
+                  DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+                  DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+                  COMMIT_SHA: ${{ needs.deploy-gate.outputs.deploy_sha }}
+                  COMPOSE_PROJECT_NAME: ${{ steps.cfg.outputs.compose_project }}
+                  IMAGE_REPO_WEB: ${{ steps.cfg.outputs.image_repo_web }}
+                  IMAGE_LOCAL_TAG_WEB: ${{ steps.cfg.outputs.image_local_tag_web }}
+                  CONTAINER_NAME_WEB_STAGING: ${{ steps.cfg.outputs.container_web_staging }}
+                  CONTAINER_NAME_WEB_PROD: private-website-web
+                  STAGING_PORT_WEB: "4510"
+                  PROD_PORT_WEB: "4500"
+                  GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  GITHUB_ACTOR: ${{ github.actor }}
+                  WEB_ORIGIN: ${{ env.WEB_ORIGIN }}
+              run: bash scripts/deploy-to-server.sh cleanup-staging
 
-  notify:
-    name: Deployment summary
-    needs: [release, build, validate-staging, prod-approval, deploy-swap]
-    if: always()
-    runs-on: ubuntu-latest
-    steps:
-      - name: Comment on Pull Request
-        if: needs.deploy-swap.result == 'success' && github.event_name == 'push'
-        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7.1.0
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const commit = '${{ needs.build.outputs.commit_sha }}';
-            const branch = 'master';
-            const deployUrl = '${{ env.WEB_ORIGIN }}';
+    notify:
+        name: Deployment summary
+        needs: [release, build, validate-staging, prod-approval, deploy-swap]
+        if: always()
+        runs-on: ubuntu-latest
+        steps:
+            - name: Comment on Pull Request
+              if: needs.deploy-swap.result == 'success' && github.event_name == 'push'
+              uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7.1.0
+              with:
+                  github-token: ${{ secrets.GITHUB_TOKEN }}
+                  script: |
+                      const commit = '${{ needs.build.outputs.commit_sha }}';
+                      const branch = 'master';
+                      const deployUrl = '${{ env.WEB_ORIGIN }}';
 
-            try {
-              const { data: pulls } = await github.rest.pulls.list({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                state: 'closed',
-                base: branch,
-                sort: 'updated',
-                direction: 'desc',
-                per_page: 20
-              });
+                      try {
+                        const { data: pulls } = await github.rest.pulls.list({
+                          owner: context.repo.owner,
+                          repo: context.repo.repo,
+                          state: 'closed',
+                          base: branch,
+                          sort: 'updated',
+                          direction: 'desc',
+                          per_page: 20
+                        });
 
-              let targetPR = null;
-              for (const pr of pulls) {
-                if (pr.merge_commit_sha === commit || pr.head.sha === commit) {
-                  targetPR = pr;
-                  break;
-                }
-              }
+                        let targetPR = null;
+                        for (const pr of pulls) {
+                          if (pr.merge_commit_sha === commit || pr.head.sha === commit) {
+                            targetPR = pr;
+                            break;
+                          }
+                        }
 
-              if (!targetPR) {
-                for (const pr of pulls) {
-                  if (pr.merged_at) {
-                    const mergedDate = new Date(pr.merged_at);
-                    const timeDiff = (Date.now() - mergedDate) / (1000 * 60);
-                    if (timeDiff <= 5) {
-                      targetPR = pr;
-                      break;
-                    }
-                  }
-                }
-              }
+                        if (!targetPR) {
+                          for (const pr of pulls) {
+                            if (pr.merged_at) {
+                              const mergedDate = new Date(pr.merged_at);
+                              const timeDiff = (Date.now() - mergedDate) / (1000 * 60);
+                              if (timeDiff <= 5) {
+                                targetPR = pr;
+                                break;
+                              }
+                            }
+                          }
+                        }
 
-              if (targetPR) {
-                const commentBody = `## Private Website deployed\n\n` +
-                  `Changes are live on **Production**.\n\n` +
-                  `**URL:** [${deployUrl}](${deployUrl})\n\n` +
-                  `### Details\n` +
-                  `- **Branch:** \`master\`\n` +
-                  `- **Commit:** \`${commit.substring(0, 7)}\`\n` +
-                  `- **Deployed at:** ${new Date().toUTCString()}\n\n` +
-                  `---\n*Auto-generated by the deployment workflow.*`;
+                        if (targetPR) {
+                          const commentBody = `## Private Website deployed\n\n` +
+                            `Changes are live on **Production**.\n\n` +
+                            `**URL:** [${deployUrl}](${deployUrl})\n\n` +
+                            `### Details\n` +
+                            `- **Branch:** \`master\`\n` +
+                            `- **Commit:** \`${commit.substring(0, 7)}\`\n` +
+                            `- **Deployed at:** ${new Date().toUTCString()}\n\n` +
+                            `---\n*Auto-generated by the deployment workflow.*`;
 
-                const { data: comments } = await github.rest.issues.listComments({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  issue_number: targetPR.number,
-                });
+                          const { data: comments } = await github.rest.issues.listComments({
+                            owner: context.repo.owner,
+                            repo: context.repo.repo,
+                            issue_number: targetPR.number,
+                          });
 
-                const existingComment = comments.find(comment =>
-                  comment.user.type === 'Bot' &&
-                  comment.body.includes('Private Website deployed') &&
-                  comment.body.includes(commit.substring(0, 7))
-                );
+                          const existingComment = comments.find(comment =>
+                            comment.user.type === 'Bot' &&
+                            comment.body.includes('Private Website deployed') &&
+                            comment.body.includes(commit.substring(0, 7))
+                          );
 
-                if (existingComment) {
-                  await github.rest.issues.updateComment({
-                    owner: context.repo.owner,
-                    repo: context.repo.repo,
-                    comment_id: existingComment.id,
-                    body: commentBody
-                  });
-                } else {
-                  await github.rest.issues.createComment({
-                    owner: context.repo.owner,
-                    repo: context.repo.repo,
-                    issue_number: targetPR.number,
-                    body: commentBody
-                  });
-                }
-              }
-            } catch (error) {
-              console.error('Failed to comment on PR:', error);
-            }
+                          if (existingComment) {
+                            await github.rest.issues.updateComment({
+                              owner: context.repo.owner,
+                              repo: context.repo.repo,
+                              comment_id: existingComment.id,
+                              body: commentBody
+                            });
+                          } else {
+                            await github.rest.issues.createComment({
+                              owner: context.repo.owner,
+                              repo: context.repo.repo,
+                              issue_number: targetPR.number,
+                              body: commentBody
+                            });
+                          }
+                        }
+                      } catch (error) {
+                        console.error('Failed to comment on PR:', error);
+                      }
 
-      - name: Generate deployment report
-        if: needs.deploy-swap.result == 'success'
-        run: |
-          echo "## Private Website deployment successful" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "- **URL:** ${{ env.WEB_ORIGIN }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Version:** ${{ needs.release.outputs.version || 'manual deploy' }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Commit:** ${{ needs.build.outputs.commit_sha }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Web:** private-website-web on localhost:4500" >> $GITHUB_STEP_SUMMARY
-          echo "- **Images:** GHCR (folderless deploy)" >> $GITHUB_STEP_SUMMARY
+            - name: Generate deployment report
+              if: needs.deploy-swap.result == 'success'
+              run: |
+                  echo "## Private Website deployment successful" >> $GITHUB_STEP_SUMMARY
+                  echo "" >> $GITHUB_STEP_SUMMARY
+                  echo "- **URL:** ${{ env.WEB_ORIGIN }}" >> $GITHUB_STEP_SUMMARY
+                  echo "- **Version:** ${{ needs.release.outputs.version || 'manual deploy' }}" >> $GITHUB_STEP_SUMMARY
+                  echo "- **Commit:** ${{ needs.build.outputs.commit_sha }}" >> $GITHUB_STEP_SUMMARY
+                  echo "- **Web:** private-website-web on localhost:4500" >> $GITHUB_STEP_SUMMARY
+                  echo "- **Images:** GHCR (folderless deploy)" >> $GITHUB_STEP_SUMMARY
 
-      - name: Report deployment failure
-        if: needs.deploy-swap.result != 'success'
-        run: |
-          echo "## Deployment failed" >> $GITHUB_STEP_SUMMARY
-          echo "Check validate, swap, or rollback job logs." >> $GITHUB_STEP_SUMMARY
+            - name: Report deployment failure
+              if: needs.deploy-swap.result != 'success'
+              run: |
+                  echo "## Deployment failed" >> $GITHUB_STEP_SUMMARY
+                  echo "Check validate, swap, or rollback job logs." >> $GITHUB_STEP_SUMMARY
