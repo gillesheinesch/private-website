@@ -20,11 +20,12 @@ permissions:
     pull-requests: write
     issues: write
     actions: write
-    variables: write
 
 env:
     REGISTRY: ghcr.io
     WEB_ORIGIN: ${{ secrets.WEB_ORIGIN || 'https://heinesch.com' }}
+    # GITHUB_TOKEN cannot read/write repository variables (403). Use a classic PAT with repo scope.
+    GH_VARIABLES_TOKEN: ${{ secrets.REPO_VARIABLES_TOKEN }}
 
 jobs:
     deploy-gate:
@@ -41,7 +42,7 @@ jobs:
 
             - id: gate
               env:
-                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  GH_TOKEN: ${{ env.GH_VARIABLES_TOKEN }}
                   EVENT_NAME: ${{ github.event_name }}
               run: |
                   set -euo pipefail
@@ -320,13 +321,17 @@ jobs:
                   WEB_ORIGIN: ${{ env.WEB_ORIGIN }}
               run: bash scripts/deploy-to-server.sh swap
 
-            - name: Record last deploy
-              env:
-                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                  DEPLOYED_SHA: ${{ needs.build.outputs.commit_sha }}
-              run: |
-                  gh variable set LAST_DEPLOYED_SHA --body "$DEPLOYED_SHA" --repo "$GITHUB_REPOSITORY"
-                  gh variable set LAST_DEPLOYED_AT --body "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --repo "$GITHUB_REPOSITORY"
+      - name: Record last deploy
+        env:
+          GH_TOKEN: ${{ env.GH_VARIABLES_TOKEN }}
+          DEPLOYED_SHA: ${{ needs.build.outputs.commit_sha }}
+        run: |
+          if [ -z "${GH_TOKEN}" ]; then
+            echo "REPO_VARIABLES_TOKEN secret is not set — cannot update deploy cadence variables." >&2
+            exit 1
+          fi
+          gh variable set LAST_DEPLOYED_SHA --body "$DEPLOYED_SHA" --repo "$GITHUB_REPOSITORY"
+          gh variable set LAST_DEPLOYED_AT --body "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --repo "$GITHUB_REPOSITORY"
 
     deploy-rollback:
         name: Rollback production

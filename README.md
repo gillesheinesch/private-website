@@ -83,13 +83,16 @@ Deploys follow the same folderless GHCR pattern as [lg-salarychecker](https://gi
 | `DEPLOY_HOST` | VPS hostname or IP |
 | `DEPLOY_USER` | SSH user |
 | `WEB_ORIGIN` | `https://heinesch.com` |
+| `REPO_VARIABLES_TOKEN` | Classic PAT with `repo` scope — required to read/write deploy cadence variables (`GITHUB_TOKEN` cannot) |
 
 ### GitHub variables
 
+Created/updated automatically by the deploy workflow (requires `REPO_VARIABLES_TOKEN`):
+
 | Variable | Description |
 |----------|-------------|
-| `LAST_DEPLOYED_SHA` | Set automatically after deploy |
-| `LAST_DEPLOYED_AT` | Set automatically after deploy |
+| `LAST_DEPLOYED_SHA` | Last successfully deployed commit on `master` |
+| `LAST_DEPLOYED_AT` | UTC timestamp of last production swap |
 
 ### GitHub environment
 
