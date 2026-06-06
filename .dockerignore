@@ -7,8 +7,11 @@
 README.md
 *.md
 
-# Node.js
+# Node.js (monorepo: exclude all workspace node_modules)
 node_modules
+**/node_modules
+**/.next
+apps/web/.next
 npm-debug.log*
 pnpm-debug.log*
 yarn-debug.log*

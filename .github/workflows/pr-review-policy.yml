@@ -1,0 +1,57 @@
+# Auto-request @gillesheinesch as reviewer on PRs to master (skips drafts and self-authored PRs).
+
+name: PR review policy
+
+on:
+  pull_request:
+    branches: [master]
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
+      - edited
+      - converted_to_draft
+
+permissions:
+  pull-requests: write
+
+concurrency:
+  group: pr-review-policy-${{ github.repository }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  assign-reviewers:
+    name: Request reviewer
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+    steps:
+      - uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7.1.0
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const pull_number = context.payload.pull_request.number;
+            const { data: pr } = await github.rest.pulls.get({ owner, repo, pull_number });
+
+            const author = pr.user?.login ?? '';
+            if (author === 'gillesheinesch') {
+              core.info(`PR #${pull_number}: skip — author is gillesheinesch`);
+              return;
+            }
+
+            const reviewers = ['gillesheinesch'];
+            const { data: requested } = await github.rest.pulls.listRequestedReviewers({
+              owner, repo, pull_number,
+            });
+            const pending = new Set(requested.users.map((u) => u.login));
+            const toRequest = reviewers.filter((login) => !pending.has(login));
+
+            if (toRequest.length > 0) {
+              await github.rest.pulls.requestReviewers({
+                owner, repo, pull_number, reviewers: toRequest,
+              });
+            }
+
+            core.info(
+              `PR #${pull_number}: requested=[${toRequest.join(', ') || '(none)'}]; already pending=[${[...pending].join(', ') || '(none)'}] (author=${author})`,
+            );

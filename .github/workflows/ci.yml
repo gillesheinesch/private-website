@@ -2,55 +2,67 @@
 name: CI
 
 concurrency:
-    group: ci-${{ github.ref }}
-    cancel-in-progress: true
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 on:
-    pull_request:
-        types: [opened, reopened, synchronize]
-        branches: [master, dev]
-    push:
-        branches: [master, dev]
-    workflow_dispatch:
+  pull_request:
+    types: [opened, reopened, synchronize]
+    branches: [master]
+  push:
+    branches: [master]
+  workflow_dispatch:
 
 jobs:
-    validate:
-        # Skip when PR is still in draft
-        if: github.event_name != 'pull_request' || !github.event.pull_request.draft
-        name: Validate Private Website
-        runs-on: ubuntu-latest
+  validate:
+    if: github.event_name != 'pull_request' || !github.event.pull_request.draft
+    name: Validate Private Website
+    runs-on: ubuntu-latest
 
-        steps:
-            - name: Checkout repository
-              uses: actions/checkout@v4
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
 
-            # setup-node's pnpm cache runs `pnpm store path`, so pnpm must exist first.
-            - name: Setup pnpm
-              uses: pnpm/action-setup@v4
-              with:
-                  version: 11.1.1
+      - name: Setup pnpm
+        uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
+        with:
+          version: 11.5.2
 
-            - name: Setup Node.js
-              uses: actions/setup-node@v4
-              with:
-                  node-version-file: ".nvmrc"
-                  cache: "pnpm"
-                  cache-dependency-path: pnpm-lock.yaml
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
 
-            - name: Install dependencies
-              run: pnpm install --frozen-lockfile
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
 
-            - name: Security audit
-              run: pnpm audit --audit-level=moderate
+      - name: Security audit
+        run: pnpm audit --audit-level=moderate
 
-            - name: Lint
-              run: pnpm run lint
+      - name: Lint
+        run: pnpm run lint
 
-            - name: TypeScript check
-              run: pnpm run typecheck
+      - name: TypeScript check
+        run: pnpm run typecheck
 
-            - name: Unit & integration tests
-              run: pnpm test
+      - name: Unit tests
+        run: pnpm test
 
-            - name: Build
-              run: pnpm run build
+      - name: Build
+        run: pnpm run build
+
+      - name: Validate Docker builds
+        run: |
+          if command -v docker-compose >/dev/null 2>&1; then
+            docker-compose --profile prod build
+          else
+            docker compose --profile prod build
+          fi
+
+      - name: Validate deploy compose config
+        run: |
+          mkdir -p /tmp
+          printf 'WEB_ORIGIN=https://heinesch.com\n' > /tmp/private-website-compose.env
+          docker compose -f docker-compose.deploy.yml config >/dev/null

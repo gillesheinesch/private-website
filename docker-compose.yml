@@ -1,87 +1,29 @@
-# Docker Compose for Private Website (heinesch.com)
+# Docker Compose for Private Website (heinesch.com) — local prod profile
+name: private-website
 
 services:
-    # Development service - optimized for fast rebuilds
-    private-website-dev:
-        build:
-            context: .
-            dockerfile: Dockerfile.dev
-        ports:
-            - "4500:80" # External port 4500 maps to internal port 80
-        volumes:
-            # Bind mount source code for hot reloading
-            - ./src:/app/src:ro
-            - ./public:/app/public:ro
-            - ./blog:/app/blog:ro
-            - ./package.json:/app/package.json:ro
-            - ./pnpm-lock.yaml:/app/pnpm-lock.yaml:ro
-            - ./.npmrc:/app/.npmrc:ro
-            - ./next.config.js:/app/next.config.js:ro
-            - ./tsconfig.json:/app/tsconfig.json:ro
-            # Keep node_modules and build cache in container
-            - node_modules_cache:/app/node_modules
-            - next_cache:/app/.next
-        environment:
-            - NODE_ENV=development
-            - FAST_REFRESH=true
-            - PORT=80
-        healthcheck:
-            test: ["CMD", "curl", "-f", "http://localhost:80"]
-            interval: 30s
-            timeout: 10s
-            retries: 3
-            start_period: 15s
-        profiles:
-            - dev
-
-    # Development service for deployment - no volume mounts
-    private-website-dev-deploy:
-        build:
-            context: .
-            dockerfile: Dockerfile.dev
-        ports:
-            - "4500:80" # External port 4500 maps to internal port 80
-        environment:
-            - NODE_ENV=production
-            - PORT=80
-        healthcheck:
-            test: ["CMD", "curl", "-f", "http://localhost:80"]
-            interval: 30s
-            timeout: 10s
-            retries: 3
-            start_period: 15s
-        profiles:
-            - dev-deploy
-
-    # Production service
-    private-website-prod:
-        build:
-            context: .
-            dockerfile: Dockerfile
-        ports:
-            - "4500:80" # External port 4500 maps to internal port 80
-        environment:
-            - NODE_ENV=production
-            - PORT=80
-        restart: unless-stopped
-        healthcheck:
-            test: ["CMD", "curl", "-f", "http://localhost:80"]
-            interval: 30s
-            timeout: 3s
-            retries: 3
-            start_period: 10s
-        profiles:
-            - prod
-
-volumes:
-    # Cache node_modules in a named volume for faster development builds
-    node_modules_cache:
-        driver: local
-    # Cache Next.js build files for faster development!
-    next_cache:
-        driver: local
+  private-website-web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    container_name: private-website-web
+    profiles:
+      - prod
+    restart: unless-stopped
+    ports:
+      - "4500:80"
+    environment:
+      HOSTNAME: "0.0.0.0"
+      PORT: "80"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://127.0.0.1:80 >/dev/null || exit 1"]
+      interval: 30s
+      timeout: 5s
+      start_period: 30s
+      retries: 3
+    networks:
+      - npm_shared
 
 networks:
-    default:
-        name: npm_shared
-        external: true
+  npm_shared:
+    external: true

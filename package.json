@@ -2,66 +2,32 @@
   "name": "private-website",
   "version": "0.1.0",
   "private": true,
-  "type": "module",
-  "packageManager": "pnpm@11.1.1",
+  "packageManager": "pnpm@11.5.2",
   "engines": {
-    "node": ">=22.0.0"
+    "node": "22.22.3"
   },
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
-    "typecheck": "tsc --noEmit",
-    "test": "jest --config jest.config.cjs",
-    "test:watch": "jest --watch --config jest.config.cjs",
-    "test:e2e": "playwright test",
-    "validate": "pnpm run lint && pnpm run typecheck && pnpm test"
-  },
-  "dependencies": {
-    "@eslint/eslintrc": "^3.3.5",
-    "class-variance-authority": "^0.7.1",
-    "clsx": "^2.1.1",
-    "framer-motion": "^12.38.0",
-    "geist": "^1.7.0",
-    "gray-matter": "^4.0.3",
-    "highlight.js": "^11.11.1",
-    "lucide-react": "^0.469.0",
-    "next": "^16.2.6",
-    "next-themes": "^0.4.6",
-    "react-markdown": "^10.1.0",
-    "rehype-highlight": "^7.0.2",
-    "rehype-slug": "^6.0.0",
-    "remark-gfm": "^4.0.1",
-    "tailwind-merge": "^3.6.0",
-    "tailwindcss-animate": "^1.0.7"
+    "setup": "node scripts/setup-dev.mjs",
+    "dev": "node scripts/kill-dev-ports.mjs && node scripts/dev.mjs",
+    "dev:stop": "node scripts/kill-dev-ports.mjs",
+    "dev:web": "pnpm --filter @private-website/web dev",
+    "build": "pnpm --filter @private-website/web build",
+    "lint": "pnpm --filter @private-website/web lint",
+    "lint:fix": "pnpm --filter @private-website/web lint:fix",
+    "typecheck": "pnpm --filter @private-website/web exec tsc --noEmit",
+    "test": "pnpm --filter @private-website/web test",
+    "test:e2e": "pnpm --filter @private-website/web test:e2e",
+    "validate": "pnpm run lint && pnpm run typecheck && pnpm test",
+    "release": "semantic-release"
   },
   "devDependencies": {
-    "@playwright/test": "^1.60.0",
-    "@tailwindcss/postcss": "^4.3.0",
-    "@tailwindcss/typography": "^0.5.19",
-    "@testing-library/jest-dom": "^6.9.1",
-    "@testing-library/react": "^16.3.2",
-    "@testing-library/user-event": "^14.6.1",
-    "@types/node": "^25.8.0",
-    "@types/react": "^18.3.28",
-    "@types/react-dom": "^18.3.7",
-    "eslint": "^9.39.4",
-    "eslint-config-next": "^16.2.6",
-    "jest": "^30.4.2",
-    "jest-environment-jsdom": "^30.4.1",
-    "tailwindcss": "^4.3.0",
-    "typescript": "^6.0.3",
-    "typescript-eslint": "^8.59.3"
-  },
-  "peerDependencies": {
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1"
-  },
-  "pnpm": {
-    "overrides": {
-      "postcss": "8.5.14"
-    }
+    "@semantic-release/commit-analyzer": "13.0.1",
+    "@semantic-release/git": "10.0.1",
+    "@semantic-release/github": "12.0.8",
+    "@semantic-release/npm": "13.1.5",
+    "@semantic-release/release-notes-generator": "14.1.1",
+    "conventional-changelog-conventionalcommits": "9.3.1",
+    "semantic-release": "25.0.3",
+    "typescript": "6.0.3"
   }
 }
