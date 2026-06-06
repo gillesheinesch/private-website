@@ -1,0 +1,105 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:best-practices", ":semanticCommits"],
+
+  "toolSettings": {
+    "nodeMaxMemory": 10240
+  },
+
+  "dependencyDashboard": true,
+  "minimumReleaseAge": "7 days",
+  "prConcurrentLimit": 5,
+  "prHourlyLimit": 3,
+
+  "rangeStrategy": "pin",
+  "rebaseWhen": "never",
+  "platformAutomerge": true,
+
+  "lockFileMaintenance": {
+    "enabled": false
+  },
+
+  "packageRules": [
+    {
+      "description": "Major updates: visible label, no automerge, wait for ecosystem stability",
+      "matchUpdateTypes": ["major"],
+      "addLabels": ["major-update"],
+      "automerge": false,
+      "minimumReleaseAge": "14 days"
+    },
+    {
+      "description": "Minor updates: no automerge for prod deps, require review",
+      "matchUpdateTypes": ["minor"],
+      "automerge": false,
+      "addLabels": ["minor-update", "needs-review"]
+    },
+    {
+      "description": "Patch updates on prod deps: review, group together",
+      "matchUpdateTypes": ["patch"],
+      "matchDepTypes": ["dependencies"],
+      "groupName": "patch-dependencies",
+      "automerge": false,
+      "addLabels": ["patch-update"]
+    },
+    {
+      "description": "Testing libs",
+      "matchPackageNames": [
+        "/^@testing-library//",
+        "vitest",
+        "jest",
+        "/^jest-/",
+        "ts-jest",
+        "playwright",
+        "/^@playwright//",
+        "msw"
+      ],
+      "groupName": "testing"
+    },
+    {
+      "description": "Styling/UI",
+      "matchPackageNames": [
+        "tailwindcss",
+        "/^@tailwindcss//",
+        "clsx",
+        "class-variance-authority",
+        "lucide-react",
+        "tailwind-merge",
+        "tailwindcss-animate",
+        "prettier-plugin-tailwindcss"
+      ],
+      "groupName": "styling-ui"
+    },
+    {
+      "description": "semantic-release stack",
+      "matchPackageNames": [
+        "semantic-release",
+        "/^@semantic-release//",
+        "conventional-changelog-conventionalcommits"
+      ],
+      "groupName": "semantic-release",
+      "automerge": false
+    },
+    {
+      "description": "Automerge devDependencies for patch/minor (core stack overridden by next rules)",
+      "matchDepTypes": ["devDependencies"],
+      "matchUpdateTypes": ["patch", "minor"],
+      "automerge": true
+    },
+    {
+      "description": "Core frontend stack: React/Next/TypeScript, extra caution (14 days, no automerge)",
+      "matchPackageNames": [
+        "react",
+        "react-dom",
+        "react-is",
+        "typescript",
+        "@types/react",
+        "@types/react-dom",
+        "next",
+        "eslint-config-next"
+      ],
+      "minimumReleaseAge": "14 days",
+      "automerge": false,
+      "groupName": "core-frontend"
+    }
+  ]
+}

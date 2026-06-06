@@ -1,0 +1,47 @@
+# Production deploy compose — image-based, no build on VPS.
+name: private-website
+
+services:
+  private-website-web:
+    image: private-website/web:latest
+    container_name: private-website-web
+    profiles:
+      - prod
+    restart: unless-stopped
+    ports:
+      - "4500:80"
+    environment:
+      HOSTNAME: "0.0.0.0"
+      PORT: "80"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://127.0.0.1:80 >/dev/null || exit 1"]
+      interval: 30s
+      timeout: 5s
+      start_period: 30s
+      retries: 3
+    networks:
+      - npm_shared
+
+  private-website-web-staging:
+    image: private-website/web:latest
+    container_name: private-website-web-staging
+    profiles:
+      - staging
+    restart: unless-stopped
+    ports:
+      - "4510:80"
+    environment:
+      HOSTNAME: "0.0.0.0"
+      PORT: "80"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://127.0.0.1:80 >/dev/null || exit 1"]
+      interval: 30s
+      timeout: 5s
+      start_period: 30s
+      retries: 3
+    networks:
+      - npm_shared
+
+networks:
+  npm_shared:
+    external: true

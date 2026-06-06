@@ -1,0 +1,11 @@
+{
+  "$comment": "Stack metadata for folderless GHCR deploy. Read by workflows and scripts via jq.",
+  "composeProjectName": "private-website",
+  "composeFile": "docker-compose.deploy.yml",
+  "imageNameWeb": "web",
+  "imageLocalTagWeb": "private-website/web:latest",
+  "prodPortWeb": 4500,
+  "stagingPortWeb": 4510,
+  "containerNameWebProd": "private-website-web",
+  "containerNameWebStaging": "private-website-web-staging"
+}

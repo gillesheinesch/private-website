@@ -1,5 +1,9 @@
+import path from "path";
+import { fileURLToPath } from "url";
+
 /** @type {import('next').NextConfig} */
 const isDev = process.env.NODE_ENV === "development";
+const monorepoRoot = path.join(path.dirname(fileURLToPath(import.meta.url)), "../..");
 
 // React / Next dev tooling uses eval for debugging; production must stay without unsafe-eval.
 const scriptSrc = isDev
@@ -21,7 +25,10 @@ const contentSecurityPolicy = [
 ].join("; ");
 
 const nextConfig = {
-    // Removed eslint.ignoreDuringBuilds to ensure proper validation
+    // Monorepo: resolve workspace root for Turbopack (pnpm workspace at repo root).
+    turbopack: {
+        root: monorepoRoot,
+    },
 
     // Security headers for all routes
     async headers() {
