@@ -1,6 +1,6 @@
 # CD — semantic-release on master push, then GHCR build, staging validate, prod swap.
 # Production deploys at most every 6 hours when master has undeployed commits (push may
-# defer; cron catches up). workflow_dispatch always deploys immediately.
+# defer; weekly Monday 04:00 UTC cron catches up). workflow_dispatch always deploys immediately.
 name: Release and deploy
 
 concurrency:
@@ -11,7 +11,7 @@ on:
     push:
         branches: [master]
     schedule:
-        - cron: "0 */6 * * *"
+        - cron: "0 4 * * 1"
     workflow_dispatch:
 
 permissions:
