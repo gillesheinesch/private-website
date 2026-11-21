@@ -6,7 +6,9 @@
     "nodeMaxMemory": 10240
   },
 
-  "dependencyDashboard": true,
+  "dependencyDashboard": {
+    "enabled": true
+  },
   "minimumReleaseAge": "7 days",
   "prConcurrentLimit": 5,
   "prHourlyLimit": 3,
