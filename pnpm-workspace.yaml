@@ -11,5 +11,5 @@ allowBuilds:
 overrides:
   postcss: 8.5.23
   postcss-selector-parser@6: 6.1.6
-  'glob@>=9.0.0 <14.0.2': ^14.0.6
-  minimatch@10: ^11.0.9
+  'glob@>=9.0.0 <14.0.2': 14.0.6
+  minimatch@10: 11.0.9
