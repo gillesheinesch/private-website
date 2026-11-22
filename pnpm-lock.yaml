@@ -42,10 +42,10 @@ importers:
   apps/web:
     dependencies:
       class-variance-authority:
-        specifier: ^0.7.1
+        specifier: 0.7.1
         version: 0.7.1
       clsx:
-        specifier: ^2.1.1
+        specifier: 2.1.1
         version: 2.1.1
       framer-motion:
         specifier: ^12.43.0
@@ -60,7 +60,7 @@ importers:
         specifier: ^11.12.0
         version: 11.12.0
       lucide-react:
-        specifier: ^1.77.0
+        specifier: 1.77.0
         version: 1.77.0(@types/react@19.3.0)(react@19.3.1)
       next:
         specifier: ^16.4.6
@@ -84,17 +84,17 @@ importers:
         specifier: ^4.0.1
         version: 4.0.1
       tailwind-merge:
-        specifier: ^3.7.1
+        specifier: 3.7.1
         version: 3.7.1
     devDependencies:
       '@playwright/test':
         specifier: ^1.65.1
         version: 1.65.1
       '@tailwindcss/postcss':
-        specifier: ^4.3.5
+        specifier: 4.3.5
         version: 4.3.5
       '@tailwindcss/typography':
-        specifier: ^0.5.20
+        specifier: 0.5.20
         version: 0.5.20(tailwindcss@4.3.5)
       '@testing-library/jest-dom':
         specifier: ^6.10.0
@@ -127,7 +127,7 @@ importers:
         specifier: ^30.5.2
         version: 30.5.2
       tailwindcss:
-        specifier: ^4.3.5
+        specifier: 4.3.5
         version: 4.3.5
       typescript:
         specifier: ^6.0.3
