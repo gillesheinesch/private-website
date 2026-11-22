@@ -13,7 +13,7 @@ describe("Projects page (integration)", () => {
     expect(screen.getByRole("img", { name: /FrëschKëscht S\.à r\.l\. product preview/i })).toBeInTheDocument();
     expect(screen.getByRole("img", { name: /WeConnect S\.à r\.l\. product preview/i })).toBeInTheDocument();
     expect(screen.getByRole("img", { name: /Dahindo a\.s\.b\.l\. product preview/i })).toBeInTheDocument();
-    expect(screen.getByRole("img", { name: /RosterX Web Application product preview/i })).toBeInTheDocument();
+    expect(screen.getByRole("img", { name: /RosterX Web Application app icon/i })).toBeInTheDocument();
   });
 
   it("renders project cards", () => {

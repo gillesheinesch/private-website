@@ -17,6 +17,14 @@ describe("About page (integration)", () => {
     expect(screen.getByText(/First Officer B737 · Co-Founder/)).toBeInTheDocument();
   });
 
+  it("groups experience into Flying, Ventures and Earlier", () => {
+    render(<AboutPage />);
+    for (const label of ["Flying", "Ventures", "Earlier"]) {
+      expect(screen.getByRole("heading", { level: 3, name: label })).toBeInTheDocument();
+    }
+    expect(screen.getByText(/GT FIDUCIAIRES/)).toBeInTheDocument();
+  });
+
   it("has LinkedIn link", () => {
     render(<AboutPage />);
     const link = screen.getByRole("link", { name: /View LinkedIn/i });

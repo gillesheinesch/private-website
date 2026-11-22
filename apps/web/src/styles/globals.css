@@ -1,5 +1,11 @@
 @import "tailwindcss";
-@config "../../tailwind.config.ts";
+@plugin "@tailwindcss/typography";
+
+/* Design tokens (Tailwind v4 CSS-first config) — Geist fonts come from next/font CSS variables */
+@theme inline {
+    --font-sans: var(--font-geist-sans), system-ui, sans-serif;
+    --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+}
 
 /* Responsive container padding - comfortable on all screen sizes */
 @layer utilities {
@@ -82,4 +88,19 @@ main {
     inset: 0;
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.02'/%3E%3C/svg%3E");
     pointer-events: none;
+}
+
+/* Respect the OS "reduce motion" setting for CSS animations (framer-motion is handled by MotionProvider) */
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
 }

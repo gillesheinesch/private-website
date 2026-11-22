@@ -11,6 +11,8 @@ export interface Project {
   github: string;
   /** Optional hero screenshot under `public/` (e.g. `/images/projects/foo.png`) */
   image?: string;
+  /** "icon" renders the image as a centred app icon instead of a full-bleed screenshot */
+  imageKind?: "screenshot" | "icon";
 }
 
 export const projects: Project[] = [
@@ -73,5 +75,6 @@ export const projects: Project[] = [
     website: "https://icalweb.heinesch.com/",
     github: "",
     image: "/images/projects/rosterx-icon.png",
+    imageKind: "icon",
   },
 ];

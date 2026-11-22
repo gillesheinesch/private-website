@@ -2,7 +2,9 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { Menu, X } from "lucide-react";
+import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
 const NAV = [
@@ -12,8 +14,16 @@ const NAV = [
     { name: "About", href: "/about" },
 ];
 
+/** Home matches exactly; other sections also match their sub-pages (e.g. /blog/slug) */
+export function isActivePath(pathname: string | null, href: string): boolean {
+    if (!pathname) return false;
+    if (href === "/") return pathname === "/";
+    return pathname === href || pathname.startsWith(`${href}/`);
+}
+
 export default function Header() {
     const [open, setOpen] = useState(false);
+    const pathname = usePathname();
 
     const closeMenu = useCallback(() => setOpen(false), []);
 
@@ -50,21 +60,35 @@ export default function Header() {
                     </span>
                 </Link>
                 <nav className="hidden items-center gap-1 md:flex" aria-label="Main">
-                    {NAV.map((item) => (
-                        <Link
-                            key={item.name}
-                            href={item.href}
-                            className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 rounded-lg"
-                        >
-                            <motion.span
-                                className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg px-3 py-2 text-sm font-medium text-zinc-400 transition-colors hover:bg-zinc-800/50 hover:text-cyan-400"
-                                whileHover={{ y: -1 }}
-                                transition={{ duration: 0.15 }}
+                    {NAV.map((item) => {
+                        const active = isActivePath(pathname, item.href);
+                        return (
+                            <Link
+                                key={item.name}
+                                href={item.href}
+                                aria-current={active ? "page" : undefined}
+                                className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 rounded-lg"
                             >
-                                {item.name}
-                            </motion.span>
-                        </Link>
-                    ))}
+                                <motion.span
+                                    className={cn(
+                                        "relative inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg px-3 py-2 text-sm font-medium transition-colors hover:bg-zinc-800/50 hover:text-cyan-400",
+                                        active ? "text-cyan-400" : "text-zinc-400",
+                                    )}
+                                    whileHover={{ y: -1 }}
+                                    transition={{ duration: 0.15 }}
+                                >
+                                    {item.name}
+                                    {active && (
+                                        <motion.span
+                                            layoutId="nav-active"
+                                            aria-hidden
+                                            className="absolute inset-x-3 -bottom-px h-0.5 rounded-full bg-cyan-400"
+                                        />
+                                    )}
+                                </motion.span>
+                            </Link>
+                        );
+                    })}
                 </nav>
                 <motion.button
                     type="button"
@@ -97,16 +121,25 @@ export default function Header() {
                             className="relative z-50 border-t border-zinc-800 bg-zinc-950/98 md:hidden"
                         >
                             <nav className="container mx-auto flex flex-col px-4 py-3 sm:px-6" aria-label="Mobile">
-                                {NAV.map((item) => (
-                                    <Link
-                                        key={item.name}
-                                        href={item.href}
-                                        onClick={closeMenu}
-                                        className="flex min-h-[48px] items-center rounded-lg px-4 py-3 text-base font-medium text-zinc-400 transition-colors hover:bg-zinc-800/50 hover:text-cyan-400 active:bg-zinc-800/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-inset"
-                                    >
-                                        {item.name}
-                                    </Link>
-                                ))}
+                                {NAV.map((item) => {
+                                    const active = isActivePath(pathname, item.href);
+                                    return (
+                                        <Link
+                                            key={item.name}
+                                            href={item.href}
+                                            onClick={closeMenu}
+                                            aria-current={active ? "page" : undefined}
+                                            className={cn(
+                                                "flex min-h-[48px] items-center rounded-lg border-l-2 px-4 py-3 text-base font-medium transition-colors hover:bg-zinc-800/50 hover:text-cyan-400 active:bg-zinc-800/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-inset",
+                                                active
+                                                    ? "border-cyan-400 bg-zinc-800/40 text-cyan-400"
+                                                    : "border-transparent text-zinc-400",
+                                            )}
+                                        >
+                                            {item.name}
+                                        </Link>
+                                    );
+                                })}
                             </nav>
                         </motion.div>
                     </>

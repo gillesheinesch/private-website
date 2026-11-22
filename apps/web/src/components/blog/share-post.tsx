@@ -1,6 +1,7 @@
 "use client";
 
-import { Facebook, Link2, Linkedin, Twitter } from "lucide-react";
+import { FacebookIcon, LinkedInIcon, XIcon } from "@/components/brand-icons";
+import { Link2 } from "lucide-react";
 
 interface SharePostProps {
     /** Full absolute URL of the post (e.g. https://heinesch.com/blog/slug) */
@@ -37,7 +38,7 @@ export function SharePost({ url, title, description }: SharePostProps) {
     const encodedUrl = encodeURIComponent(fullUrl);
     const encodedText = encodeURIComponent(description ? `${title} — ${description}` : title);
 
-    const twitterHref = `https://twitter.com/intent/tweet?text=${encodedText}&url=${encodedUrl}`;
+    const twitterHref = `https://x.com/intent/post?text=${encodedText}&url=${encodedUrl}`;
     const linkedInHref = `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`;
     const facebookHref = `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`;
 
@@ -54,9 +55,9 @@ export function SharePost({ url, title, description }: SharePostProps) {
         <div className="flex flex-wrap items-center gap-3">
             <span className="text-sm font-medium text-zinc-500">Share this post</span>
             <div className="flex items-center gap-2">
-                <ShareLink href={twitterHref} label="Share on X" icon={Twitter} />
-                <ShareLink href={linkedInHref} label="Share on LinkedIn" icon={Linkedin} />
-                <ShareLink href={facebookHref} label="Share on Facebook" icon={Facebook} />
+                <ShareLink href={twitterHref} label="Share on X" icon={XIcon} />
+                <ShareLink href={linkedInHref} label="Share on LinkedIn" icon={LinkedInIcon} />
+                <ShareLink href={facebookHref} label="Share on Facebook" icon={FacebookIcon} />
                 <button
                     type="button"
                     onClick={copyLink}

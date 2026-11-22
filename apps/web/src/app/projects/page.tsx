@@ -1,11 +1,13 @@
 "use client";
 
+import { GitHubIcon } from "@/components/brand-icons";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { projects } from "@/data/projects";
+import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
-import { ExternalLink, Github } from "lucide-react";
+import { ExternalLink } from "lucide-react";
 import Image from "next/image";
 
 export default function ProjectsPage() {
@@ -31,21 +33,40 @@ export default function ProjectsPage() {
                         key={project.title}
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: i * 0.05, duration: 0.4 }}
+                        transition={{ delay: Math.min(i, 4) * 0.04, duration: 0.35 }}
                     >
                         <Card className="group flex h-full flex-col border-zinc-800 bg-zinc-900/50 transition-all duration-300 hover:border-cyan-500/30 hover:shadow-lg hover:shadow-cyan-500/5">
                             <CardContent className="flex flex-1 flex-col p-4 sm:p-6">
                                 {project.image && (
-                                    // Fixed slot — object-contain keeps full image visible; no extra backdrop so mismatched ratios blend with the card
-                                    <div className="relative mb-4 aspect-[16/10] min-h-[180px] w-full overflow-hidden rounded-lg bg-transparent ring-1 ring-inset ring-zinc-700/50 sm:min-h-[200px]">
-                                        <Image
-                                            src={project.image}
-                                            alt={`${project.title} product preview`}
-                                            fill
-                                            sizes="(max-width: 640px) 100vw, 448px"
-                                            className="object-contain object-center"
-                                            priority={i === 0}
-                                        />
+                                    // Fixed 16:10 slot — screenshots/photos fill it, dimmed until hover so bright images
+                                    // don't overpower the dark page; app icons sit centred on a dark tile instead.
+                                    <div className="relative mb-4 aspect-[16/10] w-full overflow-hidden rounded-lg bg-zinc-950 ring-1 ring-inset ring-zinc-700/50">
+                                        {project.imageKind === "icon" ? (
+                                            <div className="flex h-full items-center justify-center bg-[radial-gradient(circle_at_center,rgba(34,211,238,0.08),transparent_70%)]">
+                                                <Image
+                                                    src={project.image}
+                                                    alt={`${project.title} app icon`}
+                                                    width={112}
+                                                    height={112}
+                                                    className="h-24 w-24 rounded-2xl shadow-xl shadow-black/50 sm:h-28 sm:w-28"
+                                                />
+                                            </div>
+                                        ) : (
+                                            <>
+                                                <Image
+                                                    src={project.image}
+                                                    alt={`${project.title} product preview`}
+                                                    fill
+                                                    sizes="(max-width: 640px) 100vw, 448px"
+                                                    className="object-cover object-top opacity-80 saturate-[0.85] transition duration-300 group-hover:opacity-100 group-hover:saturate-100"
+                                                    priority={i === 0}
+                                                />
+                                                <div
+                                                    aria-hidden
+                                                    className="pointer-events-none absolute inset-0 bg-gradient-to-t from-zinc-950/60 via-transparent to-transparent"
+                                                />
+                                            </>
+                                        )}
                                     </div>
                                 )}
                                 <div className="flex flex-wrap items-center justify-between gap-2">
@@ -69,27 +90,31 @@ export default function ProjectsPage() {
                                 </div>
                                 <div className="mt-4 flex gap-2">
                                     {project.website && (
-                                        <a href={project.website} target="_blank" rel="noopener noreferrer">
-                                            <Button
-                                                variant="outline"
-                                                size="sm"
-                                                className="inline-flex items-center gap-1 border-cyan-500/50 text-cyan-400 hover:bg-cyan-500/10 hover:text-cyan-300"
-                                            >
-                                                <ExternalLink className="h-3.5 w-3.5" />
-                                                Website
-                                            </Button>
+                                        <a
+                                            href={project.website}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className={cn(
+                                                buttonVariants({ variant: "outline", size: "sm" }),
+                                                "gap-1 border-cyan-500/50 text-cyan-400 hover:bg-cyan-500/10 hover:text-cyan-300",
+                                            )}
+                                        >
+                                            <ExternalLink className="h-3.5 w-3.5" />
+                                            Website
                                         </a>
                                     )}
                                     {project.github && (
-                                        <a href={project.github} target="_blank" rel="noopener noreferrer">
-                                            <Button
-                                                variant="outline"
-                                                size="sm"
-                                                className="inline-flex items-center gap-1 border-zinc-600 text-zinc-400 hover:bg-zinc-800"
-                                            >
-                                                <Github className="h-3.5 w-3.5" />
-                                                GitHub
-                                            </Button>
+                                        <a
+                                            href={project.github}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className={cn(
+                                                buttonVariants({ variant: "outline", size: "sm" }),
+                                                "gap-1 border-zinc-600 text-zinc-400 hover:bg-zinc-800",
+                                            )}
+                                        >
+                                            <GitHubIcon className="h-3.5 w-3.5" />
+                                            GitHub
                                         </a>
                                     )}
                                 </div>
