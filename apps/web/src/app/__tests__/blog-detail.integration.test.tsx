@@ -22,6 +22,14 @@ describe("Blog post detail page (integration)", () => {
         expect(screen.getByRole("link", { name: /Back to blog/i })).toHaveAttribute("href", "/blog");
     });
 
+    it("renders the author card linking to About", async () => {
+        const slug = require("@/lib/blog").getAllSlugs()[0]!;
+        render(await BlogPostPage({ params: Promise.resolve({ slug }) }));
+        const aside = screen.getByRole("complementary", { name: /about the author/i });
+        expect(aside).toHaveTextContent("Written by");
+        expect(screen.getByRole("link", { name: "Gilles Heinesch" })).toHaveAttribute("href", "/about");
+    });
+
     it("renders markdown content", async () => {
         const { getAllSlugs, getPostBySlug } = require("@/lib/blog");
         const slugs = getAllSlugs();

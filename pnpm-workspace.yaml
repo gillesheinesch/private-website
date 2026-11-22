@@ -3,9 +3,13 @@ packages:
 
 # pnpm 11+: permits trusted native postinstall scripts.
 allowBuilds:
+  '@parcel/watcher': false
   sharp: true
   unrs-resolver: true
 
-# Pull Next's transitive postcss to a patched release (GHSA-qx2v-qp2m-jg93).
+# Pin vulnerable transitive deps to patched releases (keeps `pnpm audit` in CI green).
 overrides:
-  postcss: 8.5.14
+  postcss: 8.5.23
+  postcss-selector-parser@6: 6.1.6
+  'glob@>=9.0.0 <14.0.2': ^14.0.6
+  minimatch@10: ^11.0.9

@@ -1,5 +1,6 @@
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
+import { MotionProvider } from "@/components/motion-provider";
 import "@/styles/globals.css";
 import { GeistMono } from "geist/font/mono";
 import { GeistSans } from "geist/font/sans";
@@ -15,12 +16,12 @@ export const metadata: Metadata = {
         template: "%s | Gilles Heinesch",
     },
     description:
-        "Personal website of Gilles Heinesch — aviation enthusiast and web developer. Projects, blog, and more.",
-    keywords: ["Gilles Heinesch", "web developer", "aviation", "Luxembourg"],
+        "Gilles Heinesch — First Officer on the Boeing 737 at Luxair and co-founder of Pilotflows, building software for pilots and flight crews.",
+    keywords: ["Gilles Heinesch", "pilot", "First Officer", "Boeing 737", "Luxair", "Pilotflows", "aviation software", "Luxembourg"],
     authors: [{ name: "Gilles Heinesch" }],
     robots: { index: true, follow: true },
     icons: {
-        icon: "/images/gillesheinesch.png",
+        apple: "/images/gillesheinesch.png",
     },
     openGraph: {
         type: "website",
@@ -52,11 +53,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 >
                     Skip to content
                 </a>
-                <div className="content">
-                    <Header />
-                    <main id="main-content">{children}</main>
-                    <Footer />
-                </div>
+                <MotionProvider>
+                    <div className="content">
+                        <Header />
+                        <main id="main-content">{children}</main>
+                        <Footer />
+                    </div>
+                </MotionProvider>
             </body>
         </html>
     );

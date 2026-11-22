@@ -65,7 +65,14 @@ const blogComponents: Components = {
     img: ({ src, alt, ...props }) => (
         <span className="block my-6">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={src} alt={alt ?? ""} className="w-full rounded-lg border border-zinc-700" {...props} />
+            <img
+                src={src}
+                alt={alt ?? ""}
+                loading="lazy"
+                decoding="async"
+                className="w-full rounded-lg border border-zinc-700"
+                {...props}
+            />
             {alt && <span className="mt-2 block text-center text-sm italic text-zinc-500">{alt}</span>}
         </span>
     ),

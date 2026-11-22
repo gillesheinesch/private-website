@@ -1,3 +1,4 @@
+import { AuthorCard } from "@/components/blog/author-card";
 import { PrevNextPosts } from "@/components/blog/prev-next-posts";
 import { ReadingProgressBar } from "@/components/blog/reading-progress-bar";
 import { SharePost } from "@/components/blog/share-post";
@@ -64,7 +65,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
             "@type": "Person",
             name: "Gilles Heinesch",
         },
-        image: post.thumbnail || `${BASE_URL}/images/gillesheinesch.png`,
+        image: new URL(post.thumbnail || "/images/gillesheinesch.png", BASE_URL).toString(),
         url: `${BASE_URL}/blog/${slug}`,
     };
 
@@ -116,6 +117,8 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                 <div className="prose prose-invert prose-zinc prose-lg max-w-none prose-headings:text-zinc-100 prose-p:text-zinc-300 prose-pre:bg-zinc-900 prose-code:text-cyan-400 prose-a:text-cyan-400 prose-img:rounded-lg prose-p:leading-relaxed">
                     <MDXContent content={post.content} />
                 </div>
+
+                <AuthorCard />
 
                 <div className="mt-10 border-t border-zinc-800 pt-8">
                     <SharePost url={canonicalUrl} title={post.title} description={post.description} />

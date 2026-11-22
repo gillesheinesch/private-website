@@ -1,20 +1,38 @@
 "use client";
 
+import { profile } from "@/data/about";
 import { motion } from "framer-motion";
+import Image from "next/image";
 
 /** Main headline uses the site body font (Geist Sans), not the terminal block below. */
-const DISPLAY_NAME = "Gilles Heinesch";
+const DISPLAY_NAME = profile.name;
 
 /** Fake “shell” lines — monospace only here to keep the aviation × code vibe. */
-const CODE_LINES = ["const flight = code.takeoff();", "// Aviation enthusiast · Web developer"];
+const CODE_LINES = ["const flight = code.takeoff();", "// First Officer B737 · Software for pilots"];
 
 /** Stagger after the title so the hero reads name first, then the playful code snippet. */
-const CODE_LINE_BASE_DELAY_S = 0.35;
-const CODE_LINE_STAGGER_S = 0.4;
+const CODE_LINE_BASE_DELAY_S = 0.25;
+const CODE_LINE_STAGGER_S = 0.25;
 
 export function TypingHero() {
     return (
-        <div className="flex flex-col items-center gap-4 text-center">
+        <div className="flex flex-col items-center gap-3 text-center sm:gap-4">
+            <motion.div
+                initial={{ opacity: 0, scale: 0.92 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5 }}
+                className="relative h-20 w-20 overflow-hidden rounded-full ring-2 ring-cyan-500/40 ring-offset-4 ring-offset-zinc-950 sm:h-24 sm:w-24"
+            >
+                <Image
+                    src="/images/gillesheinesch.png"
+                    alt={profile.name}
+                    fill
+                    sizes="96px"
+                    priority
+                    className="object-cover object-[35%_30%]"
+                />
+            </motion.div>
+
             <motion.h1
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -30,7 +48,7 @@ export function TypingHero() {
                 />
             </motion.h1>
 
-            <div className="font-mono text-base leading-relaxed text-zinc-200 sm:text-lg md:text-xl">
+            <div className="font-mono text-sm leading-relaxed text-zinc-200 sm:text-lg md:text-xl">
                 {CODE_LINES.map((line, i) => (
                     <motion.div
                         key={line}
@@ -44,7 +62,6 @@ export function TypingHero() {
                     >
                         <span className="text-cyan-500">&gt;</span>
                         <span>{line}</span>
-                        {/* Blinking caret stays on the name; terminal lines end without a second cursor */}
                     </motion.div>
                 ))}
             </div>

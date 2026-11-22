@@ -7,12 +7,12 @@ const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://heinesch.com";
 export const metadata: Metadata = {
     title: "About",
     description:
-        "About Gilles Heinesch — aviation enthusiast, web developer, co-founder. Luxembourg. Luxair, Pilotflows, FrëschKëscht, WeConnect.",
+        "About Gilles Heinesch — First Officer B737 at Luxair, co-founder of Pilotflows, building software for pilots. Luxembourg.",
     alternates: { canonical: "/about" },
     openGraph: {
         title: "About | Gilles Heinesch",
         description:
-            "About Gilles Heinesch — aviation enthusiast, web developer, co-founder. Luxembourg. Luxair, Pilotflows, FrëschKëscht, WeConnect.",
+            "About Gilles Heinesch — First Officer B737 at Luxair, co-founder of Pilotflows, building software for pilots. Luxembourg.",
         url: "/about",
     },
     twitter: {
@@ -28,7 +28,7 @@ const personSchema = {
     jobTitle: profile.tagline,
     description: profile.bio,
     image: `${BASE_URL}/images/gillesheinesch.png`,
-    sameAs: [profile.linkedin],
+    sameAs: [profile.linkedin, profile.github],
 };
 
 export default function AboutLayout({ children }: { children: React.ReactNode }) {

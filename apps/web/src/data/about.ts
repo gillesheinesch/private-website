@@ -7,11 +7,32 @@ export const profile = {
   name: "Gilles Heinesch",
   tagline: "First Officer B737 · Co-Founder",
   location: "Luxembourg",
+  /** ICAO code of home airport — shown in the landing flight log */
+  homeBase: "ELLX",
   bio: "First Officer on the Boeing 737 at Luxair, after line flying on the Q400. By night I build software for pilots and flight crews — from aviation management platforms to roster parsers. I've co-founded several ventures across Luxembourg and beyond, always at the intersection of aviation and technology.",
   linkedin: "https://www.linkedin.com/in/gillesheinesch/",
+  github: "https://github.com/gillesheinesch",
 };
 
-export const experience = [
+/** Section an experience entry is listed under on the About page */
+export type ExperienceGroup = "flying" | "ventures" | "earlier";
+
+export const experienceGroups: { id: ExperienceGroup; label: string }[] = [
+  { id: "flying", label: "Flying" },
+  { id: "ventures", label: "Ventures" },
+  { id: "earlier", label: "Earlier" },
+];
+
+export const experience: {
+  role: string;
+  company: string;
+  period: string;
+  location: string;
+  employment: string;
+  description: string;
+  url: string;
+  group: ExperienceGroup;
+}[] = [
   {
     role: "First Officer B737",
     company: "Luxair",
@@ -20,6 +41,7 @@ export const experience = [
     employment: "Full-time",
     description: "Flight operations at Luxembourg's flagship airline.",
     url: "",
+    group: "flying",
   },
   {
     role: "First Officer Q400",
@@ -29,16 +51,18 @@ export const experience = [
     employment: "Full-time",
     description: "Line operations on the Dash 8-Q400 fleet.",
     url: "",
+    group: "flying",
   },
   {
     role: "Co-Founder",
     company: "PilotFlows",
     period: "Jan 2025 — Present",
-    location: "",
-    employment: "Freelance",
+    location: "Luxembourg",
+    employment: "Self-employed",
     description:
       "Building the all-in-one aviation management platform for pilots, flight schools, and dropzones. EASA & FAA compliant.",
     url: "https://pilotflows.com",
+    group: "ventures",
   },
   {
     role: "Co-Founder",
@@ -49,6 +73,7 @@ export const experience = [
     description:
       "Nonprofit fighting hunger and improving education access. Fundraising, team building.",
     url: "https://www.dahindo.com",
+    group: "ventures",
   },
   {
     role: "Co-Founder",
@@ -59,6 +84,7 @@ export const experience = [
     description:
       "Platform connecting students with local hosts for affordable housing and intergenerational cohabitation.",
     url: "https://www.weconnect.lu",
+    group: "ventures",
   },
   {
     role: "Co-Founder",
@@ -69,6 +95,7 @@ export const experience = [
     description:
       "Founded from a school project (Kontest 2020 winner). Started with 100% Luxembourgish produce boxes; pivoted in 2022 to exclusive gift boxes for companies and private customers. Odoo, e-commerce.",
     url: "https://www.freschkescht.lu",
+    group: "ventures",
   },
   {
     role: "Assistant Treasurer",
@@ -78,6 +105,7 @@ export const experience = [
     employment: "Freelance",
     description: "",
     url: "",
+    group: "earlier",
   },
   {
     role: "Ambassador · Vice President",
@@ -88,6 +116,7 @@ export const experience = [
     description:
       "Jonk Entrepreneuren alumni network. Ambassador Oct 2022–Apr 2024, VP Sep 2021–Oct 2022. Communication, event management.",
     url: "",
+    group: "earlier",
   },
   {
     role: "Accountant",
@@ -98,24 +127,6 @@ export const experience = [
     description:
       "Accounting for various companies. Sage BOB50, year-end closing, general accounting processes.",
     url: "",
+    group: "earlier",
   },
-];
-
-export const skills = [
-  "React / Next.js",
-  "TypeScript",
-  "Aviation",
-  "Financial Accounting",
-  "Public Relations",
-  "Odoo",
-  "WordPress",
-  "Event Management",
-  "Team Building",
-];
-
-export const interests = [
-  "Aviation",
-  "Running",
-  "Luxembourg",
-  "Entrepreneurship",
 ];
